@@ -44,6 +44,8 @@ export function ReviewBox({ open, subject, items, onClose }: Props) {
           options: item.question.options,
           correctIndex: item.question.correctIndex,
           playerChoice: item.playerChoice,
+          questionId: item.question.id,
+          grade: item.question.grade,
         }),
       });
       const data = (await res.json()) as { explanation?: string };

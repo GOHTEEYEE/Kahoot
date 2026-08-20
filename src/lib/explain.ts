@@ -1,4 +1,5 @@
 import type { SubjectId } from "./curriculum";
+import { formatChineseGrade4 } from "./explain/chineseGrade4";
 
 export type ExplainRequest = {
   subject: SubjectId;
@@ -7,6 +8,8 @@ export type ExplainRequest = {
   correctIndex: number;
   playerChoice: number | null;
   language?: "zh" | "en" | "ms";
+  questionId?: string;
+  grade?: number;
 };
 
 // ─── Math step-by-step engine ────────────────────────────────────────────────
@@ -410,11 +413,28 @@ function englishExplain(prompt: string, correct: string, chosen: string): string
   ].join("\n");
 }
 
+function chineseExplain(input: ExplainRequest, chosen: string, isCorrect: boolean): string | null {
+  if (input.questionId) {
+    return formatChineseGrade4(
+      input.questionId,
+      input.prompt,
+      input.options,
+      input.correctIndex,
+      chosen,
+      isCorrect,
+    );
+  }
+  return null;
+}
+
 export function localExplain(input: ExplainRequest): string {
   const correct = input.options[input.correctIndex] ?? "";
   const chosen =
     input.playerChoice == null ? "没有作答（超时）" : (input.options[input.playerChoice] ?? "");
   const isCorrect = input.playerChoice === input.correctIndex;
+
+  const chinese = input.subject === "chinese" ? chineseExplain(input, chosen, isCorrect) : null;
+  if (chinese) return chinese;
 
   if (isCorrect) {
     if (input.subject === "math") {
