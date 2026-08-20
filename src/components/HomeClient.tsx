@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { HomeAtmosphere } from "./home/HomeAtmosphere";
 import { HomeHeader } from "./home/HomeHeader";
 import { WorldDiorama } from "./home/WorldDiorama";
-import { WorldProgress } from "./home/WorldProgress";
 import { ChallengeButton } from "./home/ChallengeButton";
 import { ChangeWorldButton, WorldPickerModal } from "./home/WorldPickerModal";
 import { SideActions } from "./home/SideActions";
@@ -21,7 +20,7 @@ import {
   getSubjectStats,
   saveSelectedSubject,
 } from "../lib/storage";
-import { getMockEconomy, getSubjectWorld } from "../lib/worlds";
+import { getMockEconomy } from "../lib/worlds";
 import { readWallet } from "../lib/rewards";
 import { usePrefersReducedMotion } from "../lib/usePrefersReducedMotion";
 
@@ -69,7 +68,6 @@ export function HomeClient() {
   }, [router]);
 
   const trophies = account ? getSubjectStats(account, subject).trophies : 0;
-  const world = useMemo(() => getSubjectWorld(subject), [subject]);
 
   const economy = useMemo(() => {
     if (!account) return { xpLevel: 1, xpProgress: 0, coins: 0, gems: 0 };
@@ -174,15 +172,6 @@ export function HomeClient() {
             onWorld={() => setPickerOpen(true)}
           />
         </WorldDiorama>
-      </motion.div>
-
-      <motion.div variants={enter} className="relative z-20 mt-1.5 shrink-0">
-        <WorldProgress
-          trophies={trophies}
-          mascotName={world.mascotName}
-          subject={subject}
-          onOpenMap={() => setPickerOpen(true)}
-        />
       </motion.div>
 
       <motion.div
