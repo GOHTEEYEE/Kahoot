@@ -9,6 +9,7 @@ import { WorldDiorama } from "./home/WorldDiorama";
 import { ChallengeButton } from "./home/ChallengeButton";
 import { ChangeWorldButton, WorldPickerModal } from "./home/WorldPickerModal";
 import { SideActions } from "./home/SideActions";
+import { WorldProgress } from "./home/WorldProgress";
 import { BottomNavigation } from "./home/BottomNavigation";
 import { GameToast } from "./home/GameToast";
 import type { SubjectId } from "../lib/curriculum";
@@ -20,7 +21,7 @@ import {
   getSubjectStats,
   saveSelectedSubject,
 } from "../lib/storage";
-import { getMockEconomy } from "../lib/worlds";
+import { getMockEconomy, getSubjectWorld } from "../lib/worlds";
 import { readWallet } from "../lib/rewards";
 import { usePrefersReducedMotion } from "../lib/usePrefersReducedMotion";
 
@@ -68,6 +69,7 @@ export function HomeClient() {
   }, [router]);
 
   const trophies = account ? getSubjectStats(account, subject).trophies : 0;
+  const mascotName = getSubjectWorld(subject).mascotName;
 
   const economy = useMemo(() => {
     if (!account) return { xpLevel: 1, xpProgress: 0, coins: 0, gems: 0 };
@@ -130,7 +132,7 @@ export function HomeClient() {
 
   return (
     <motion.div
-      className="game-canvas relative mx-auto flex h-full min-h-0 w-full max-w-[520px] flex-1 flex-col overflow-hidden px-3 pt-[max(0.35rem,env(safe-area-inset-top))] pb-[calc(4.5rem+env(safe-area-inset-bottom))]"
+      className="game-canvas relative mx-auto flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden px-[var(--home-pad-x)] pt-[max(0.25rem,env(safe-area-inset-top))] pb-[calc(var(--home-nav-h)+var(--home-cta-nav-gap)+0.4rem+env(safe-area-inset-bottom))]"
       initial={reduced ? false : "hidden"}
       animate="show"
       variants={{
@@ -156,7 +158,7 @@ export function HomeClient() {
       <motion.div
         variants={reduced ? enter : { hidden: { opacity: 0 }, show: { opacity: 1 } }}
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        className="relative z-10 flex min-h-0 flex-1 flex-col"
+        className="home-middle-zone relative z-10 flex min-h-0 flex-col"
       >
         <WorldDiorama
           subject={subject}
@@ -174,14 +176,20 @@ export function HomeClient() {
         </WorldDiorama>
       </motion.div>
 
-      <motion.div
-        variants={enter}
-        className="relative z-20 mt-2 flex shrink-0 items-stretch gap-2"
-        style={{ height: "var(--home-cta-height)" }}
-      >
-        <ChallengeButton onClick={startBattle} />
-        <ChangeWorldButton onClick={() => setPickerOpen(true)} />
-      </motion.div>
+      <div className="home-bottom-stack">
+        <motion.div variants={enter} className="relative z-20 shrink-0 px-0">
+          <WorldProgress trophies={trophies} mascotName={mascotName} />
+        </motion.div>
+
+        <motion.div
+          variants={enter}
+          className="relative z-20 flex shrink-0 items-stretch gap-2"
+          style={{ height: "var(--home-cta-height)" }}
+        >
+          <ChallengeButton onClick={startBattle} />
+          <ChangeWorldButton onClick={() => setPickerOpen(true)} />
+        </motion.div>
+      </div>
 
       <WorldPickerModal
         open={pickerOpen}

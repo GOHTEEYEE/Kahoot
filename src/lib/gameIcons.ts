@@ -101,7 +101,7 @@ export const GAME_ICON_SIZES: Record<GameIconSize, string> = {
   challenge: "h-14 w-14",
   worldMap: "h-11 w-11",
   sideHud: "h-8 w-8",
-  quickAction: "h-[clamp(2rem,8vw,2.65rem)] w-[clamp(2rem,8vw,2.65rem)]",
+  quickAction: "h-[clamp(2.35rem,9.5vw,3.1rem)] w-[clamp(2.35rem,9.5vw,3.1rem)]",
   utility: "h-5 w-5",
   progress: "h-8 w-8",
 };

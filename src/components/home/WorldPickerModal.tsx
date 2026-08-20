@@ -15,6 +15,7 @@ import { getSubjectStats } from "../../lib/storage";
 import type { StudentAccount } from "../../lib/account";
 import { playSfx } from "../../lib/audio/sfx";
 import { GameIcon } from "./GameIcon";
+import { GameButton } from "../game-ui/GameButton";
 
 type Props = {
   open: boolean;
@@ -210,29 +211,18 @@ export function WorldPickerModal({
 
 export function ChangeWorldButton({ onClick }: { onClick: () => void }) {
   return (
-    <motion.button
-      type="button"
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.97, y: 3 }}
-      transition={{ type: "spring", stiffness: 420, damping: 22 }}
+    <GameButton
+      variant="green"
+      icon="map"
+      iconSize="worldMap"
+      titleZh="世界地图"
+      titleEn="WORLD MAP"
+      flexBasisClass="basis-[38%]"
       onClick={() => {
         playSfx("whoosh");
         onClick();
       }}
-      className="cta-green relative flex h-full min-w-0 basis-[38%] items-center justify-center gap-1.5 rounded-[var(--game-radius)] px-2 text-[#fff8ea] will-change-transform"
-      style={{ minHeight: "var(--home-cta-height)" }}
-    >
-      <span className="pointer-events-none absolute inset-x-4 top-2 h-2 rounded-full bg-white/30" />
-      <GameIcon name="map" size="worldMap" className="relative z-10" />
-      <span className="relative z-10 text-left leading-tight">
-        <span className="block font-[family-name:var(--font-display)] text-[clamp(0.95rem,3.8vw,1.05rem)] font-bold drop-shadow-[0_1px_0_rgba(20,70,30,0.35)]">
-          世界地图
-        </span>
-        <span className="block text-[8px] font-extrabold tracking-[0.14em] text-white/82">
-          WORLD MAP
-        </span>
-      </span>
-    </motion.button>
+    />
   );
 }
 

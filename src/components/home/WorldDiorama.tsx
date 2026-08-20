@@ -15,7 +15,8 @@ import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion";
 import { ANIM } from "../../lib/animation/animationConfig";
 import { WorldScene } from "../world/WorldScene";
 import { playSfx } from "../../lib/audio/sfx";
-import { GameIcon } from "./GameIcon";
+import { getWorldArtPack } from "../../lib/animation/worldArt";
+import { GameWorldHeader } from "../game-ui/GameWorldHeader";
 
 const ISLAND_SPARKLES = [
   { left: "18%", top: "12%", delay: 0 },
@@ -35,6 +36,7 @@ type Props = {
 export function WorldDiorama({ subject, trophies, viewingStage, onIslandClick, children }: Props) {
   const reduced = usePrefersReducedMotion();
   const world = getSubjectWorld(subject);
+  const artPack = getWorldArtPack(subject);
   const earned = getWorldStage(trophies);
   const stage = viewingStage ? getStageById(viewingStage) : earned;
   const switchMs = ANIM.worldSwitch.durationMs / 1000;
@@ -50,51 +52,21 @@ export function WorldDiorama({ subject, trophies, viewingStage, onIslandClick, c
   }
 
   return (
-    <div className="relative flex w-full min-h-0 flex-1 flex-col items-center justify-center pt-0">
-      <motion.button
-        type="button"
+    <div className="relative flex min-h-0 w-full flex-1 flex-col items-center justify-start pt-0">
+      <GameWorldHeader
         onClick={openMap}
-        className="wood-plaque-leaf relative z-20 mx-auto mb-1 block shrink-0"
-        style={{ width: "var(--world-title-width)" }}
-        aria-label="查看关卡地图"
-        whileTap={{ scale: 0.98 }}
-      >
-        <div className="world-sign world-sign--compact plaque-glint relative overflow-hidden rounded-[var(--game-radius)] px-3 pb-1.5 pt-1 text-center">
-          <span className="wood-leaf wood-leaf-left" aria-hidden />
-          <span className="wood-leaf wood-leaf-right" aria-hidden />
+        subjectName={world.subjectName}
+        subjectLevel={stage.level}
+        worldName={world.worldName}
+        isPreview={Boolean(viewingStage && viewingStage !== earned.id)}
+        trophies={trophies}
+        trophyCap={trophyCap}
+        plaqueProgress={plaqueProgress}
+      />
 
-          <p className="text-[8px] font-extrabold leading-none tracking-[0.1em] text-[#ffe9c4]">
-            {world.subjectName} · LV.{stage.level}
-            {viewingStage && viewingStage !== earned.id ? " · PREVIEW" : ""}
-          </p>
-
-          <h2 className="mt-0.5 font-[family-name:var(--font-display)] text-[clamp(0.92rem,3.8vw,1.05rem)] font-bold leading-tight text-[#fff8ea] drop-shadow-[0_1px_0_rgba(90,40,10,0.45)]">
-            {world.worldName}
-          </h2>
-
-          <div className="mx-auto mt-1 flex items-center justify-center gap-1">
-            <GameIcon name="trophy" size="utility" className="shrink-0" />
-            <span className="text-[9px] font-extrabold tabular-nums tracking-wide text-[#ffe27a]">
-              {trophies} / {trophyCap}
-            </span>
-          </div>
-
-          <div className="mx-auto mt-1 flex w-[88%] items-center gap-1 rounded-full bg-[#3c3425]/35 px-1 py-0.5 ring-1 ring-[#ffe7b8]/20">
-            <div className="relative h-1 min-w-0 flex-1 overflow-hidden rounded-full bg-black/40">
-              <motion.div
-                className="h-full rounded-full bg-gradient-to-r from-[#ff8a2a] via-[#ffc14a] to-[#fff38a]"
-                initial={{ width: 0 }}
-                animate={{ width: `${Math.round(plaqueProgress * 100)}%` }}
-                transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              />
-            </div>
-          </div>
-        </div>
-      </motion.button>
-
-      <div className="island-arena relative mx-auto flex w-full flex-1 items-center justify-center">
+      <div className="island-arena relative mx-auto flex w-full items-end justify-center">
         {children}
-        <div className="island-stage relative island-shadow">
+        <div className={`island-stage relative island-shadow ${reduced ? "" : "island-idle-float"}`}>
           {!reduced
             ? ISLAND_SPARKLES.map((s, i) => (
                 <span
@@ -106,7 +78,19 @@ export function WorldDiorama({ subject, trophies, viewingStage, onIslandClick, c
               ))
             : null}
 
-          <div className="relative h-full w-full origin-[50%_56%] scale-[var(--island-scale)]">
+          <div
+            className={`relative h-full w-full ${
+              artPack.islandHeroScale == null ? "origin-[50%_58%] scale-[var(--island-scale)]" : ""
+            }`}
+            style={
+              artPack.islandHeroScale == null
+                ? undefined
+                : {
+                    transformOrigin: artPack.islandHeroOrigin ?? "50% 58%",
+                    transform: `scale(${artPack.islandHeroScale})`,
+                  }
+            }
+          >
             <AnimatePresence mode="wait">
               <motion.div
                 key={`${subject}-${stage.id}`}

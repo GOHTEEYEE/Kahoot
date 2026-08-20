@@ -12,7 +12,7 @@ type Props = {
   onIslandClick?: () => void;
 };
 
-/** Home world viewport — always asset-composed (ArtWorldScene). */
+/** Home world viewport — asset-composed ArtWorldScene (no screenshot HTML embeds). */
 export function WorldScene({ subject, stage, onIslandClick }: Props) {
   const artPack = getWorldArtPack(subject);
   return <ArtWorldScene pack={artPack} stage={stage} onIslandClick={onIslandClick} />;

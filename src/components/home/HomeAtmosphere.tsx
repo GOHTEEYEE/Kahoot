@@ -14,6 +14,13 @@ const MOTES = [
   { left: "86%", top: "30%", delay: 0.9, dur: 8.2, size: 3 },
 ] as const;
 
+const PETALS = [
+  { left: "8%", delay: 0, dur: 9.5, size: 6 },
+  { left: "22%", delay: 2.1, dur: 11, size: 5 },
+  { left: "68%", delay: 0.6, dur: 10.2, size: 6 },
+  { left: "84%", delay: 3.4, dur: 12, size: 5 },
+] as const;
+
 /** Atmospheric sky gradient — island is the hero; background creates depth only. */
 export function HomeAtmosphere() {
   const reduced = usePrefersReducedMotion();
@@ -34,6 +41,7 @@ export function HomeAtmosphere() {
         aria-hidden
       />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_42%,rgba(255,255,255,0.14)_0%,transparent_52%)]" />
+      <div className="home-hills absolute inset-x-0 bottom-0" aria-hidden />
       <div className="home-vignette absolute inset-0 opacity-60" />
 
       {!reduced
@@ -54,6 +62,29 @@ export function HomeAtmosphere() {
                 repeat: Infinity,
                 delay: m.delay,
                 ease: "easeOut",
+              }}
+            />
+          ))
+        : null}
+
+      {!reduced
+        ? PETALS.map((p, i) => (
+            <motion.span
+              key={`petal-${i}`}
+              className="absolute rounded-full bg-[#ffb8c8]/75"
+              style={{
+                left: p.left,
+                top: "8%",
+                width: p.size,
+                height: p.size * 0.72,
+                borderRadius: "60% 40% 55% 45%",
+              }}
+              animate={{ y: [0, 420], x: [0, i % 2 === 0 ? 18 : -14], rotate: [0, 140], opacity: [0, 0.55, 0] }}
+              transition={{
+                duration: p.dur,
+                repeat: Infinity,
+                delay: p.delay,
+                ease: "easeInOut",
               }}
             />
           ))

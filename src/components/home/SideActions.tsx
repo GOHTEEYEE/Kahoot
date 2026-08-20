@@ -81,6 +81,7 @@ export function SideActions({ onChest, onMission, onEvent, onSeason, onWorld }: 
         />
         <QuickActionCard
           title="世界"
+          meta="World"
           icon="map"
           reduced={reduced}
           delay={0.55}

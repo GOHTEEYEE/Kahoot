@@ -52,6 +52,12 @@ export type WorldArtPack = {
    * Village (Lv.1) uses `world` / `posterSrc`. Higher stages fall back to the latest plate below them.
    */
   stageWorld?: Partial<Record<WorldStageId, WorldArtLayer>>;
+  /** Optional per-world hero scale override (default: CSS --island-scale). */
+  islandHeroScale?: number;
+  /** Optional per-world hero transform origin (default: 50% 58%). */
+  islandHeroOrigin?: string;
+  /** Island plate width:height ratio (default: CSS --island-aspect). */
+  islandAspect?: number;
 };
 
 /** Premium painted world packs. Compose via ArtWorldScene — never CSS house/tree fakes. */
@@ -60,29 +66,29 @@ export const WORLD_ART_PACKS: Record<SubjectId, WorldArtPack> = {
     subject: "chinese",
     folder: "chinese",
     sky: { src: "/worlds/shared/home-bg.png", position: "50% 35%" },
-    world: { src: "/worlds/chinese/island.png?v=live", position: "50% 52%" },
+    // Layered game plate (transparent) — NOT a baked screenshot of the whole scene.
+    world: { src: "/worlds/chinese/stages/academy.png?v=live", position: "50% 52%" },
     worldFit: "contain",
-    posterSrc: "/worlds/chinese/island.png?v=live",
+    posterSrc: "/worlds/chinese/stages/academy.png?v=live",
     foreground: { src: "/worlds/chinese/foreground.png", position: "50% 100%" },
     showForeground: false,
     character: { src: "/worlds/chinese/momo.png?v=live", position: "50% 50%" },
     characterWave: { src: "/worlds/chinese/momo-wave.png?v=wave", position: "50% 50%" },
     liveMascot: true,
-    mascotHotspot: { left: 0.16, top: 0.46, width: 0.28, height: 0.36 },
+    mascotHotspot: { left: 0.34, top: 0.48, width: 0.32, height: 0.4 },
+    islandHeroScale: 1.12,
+    islandHeroOrigin: "50% 58%",
     waterfallHotspots: [
-      { left: 0.21, top: 0.56, width: 0.09, height: 0.24 },
-      { left: 0.67, top: 0.56, width: 0.09, height: 0.24 },
+      { left: 0.2, top: 0.56, width: 0.1, height: 0.26 },
+      { left: 0.68, top: 0.56, width: 0.1, height: 0.26 },
     ],
     ambient: {
-      waterSurfaces: [{ left: 0.22, top: 0.78, width: 0.56, height: 0.08 }],
+      waterSurfaces: [{ left: 0.2, top: 0.78, width: 0.6, height: 0.08 }],
       foliage: [
         { hotspot: { left: 0.08, top: 0.48, width: 0.12, height: 0.1 }, delay: 0 },
-        { hotspot: { left: 0.72, top: 0.5, width: 0.1, height: 0.1 }, delay: 0.7 },
+        { hotspot: { left: 0.74, top: 0.5, width: 0.12, height: 0.1 }, delay: 0.7 },
       ],
-      petals: { origin: { left: 0.06, top: 0.3, width: 0.24, height: 0.22 }, count: 5 },
-    },
-    stageWorld: {
-      academy: { src: "/worlds/chinese/stages/academy.png?v=live", position: "50% 52%" },
+      petals: { origin: { left: 0.1, top: 0.28, width: 0.8, height: 0.28 }, count: 7 },
     },
   },
   english: {

@@ -83,7 +83,9 @@ export function ArtWorldScene({ pack, stage, onIslandClick }: Props) {
               src={worldPlate.src}
               alt=""
               draggable={false}
-              className="pointer-events-none absolute inset-0 z-[1] h-full w-full object-contain object-center"
+              className={`pointer-events-none absolute inset-0 z-[1] h-full w-full object-center ${
+                pack.worldFit === "cover" ? "object-cover" : "object-contain"
+              }`}
               style={{ objectPosition: worldPlate.position }}
             />
           ) : null}
