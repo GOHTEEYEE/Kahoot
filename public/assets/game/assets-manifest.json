@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "description": "Central game asset registry for MathArena UI",
+  "icons": [
+    { "id": "challenge-swords", "path": "/assets/game/icons/challenge-swords.png", "source": "public/icons/swords.png", "license": "project art" },
+    { "id": "world-map", "path": "/assets/game/icons/world-map.png", "source": "public/icons/map.png", "license": "project art" },
+    { "id": "daily-chest", "path": "/assets/game/icons/daily-chest.png", "source": "public/icons/chest.png", "license": "project art" },
+    { "id": "daily-mission", "path": "/assets/game/icons/daily-mission.png", "source": "public/icons/quest.png", "license": "project art" },
+    { "id": "battle-pass", "path": "/assets/game/icons/battle-pass.png", "source": "public/icons/medal.png", "license": "project art" },
+    { "id": "trophy", "path": "/assets/game/icons/trophy.png", "source": "public/icons/trophy.png", "license": "project art" },
+    { "id": "coin", "path": "/assets/game/icons/coin.png", "source": "public/icons/coin.png", "license": "project art" },
+    { "id": "gem", "path": "/assets/game/icons/gem.png", "source": "public/icons/gem.png", "license": "project art" },
+    { "id": "mail", "path": "/assets/game/icons/mail.png", "source": "public/icons/mail.png", "license": "project art" },
+    { "id": "notification", "path": "/assets/game/icons/notification.png", "source": "public/icons/bell.png", "license": "project art" },
+    { "id": "settings", "path": "/assets/game/icons/settings.png", "source": "public/icons/gear.png", "license": "project art" },
+    { "id": "spirits", "path": "/assets/game/icons/spirits.png", "source": "public/icons/spirit.png", "license": "project art" },
+    { "id": "reward-fragment", "path": "/assets/game/icons/reward-fragment.png", "source": "public/icons/fragment.png", "license": "project art" },
+    { "id": "event-announce", "path": "/assets/game/icons/event-announce.png", "source": "public/icons/speaker.png", "license": "project art" },
+    { "id": "home", "path": "/assets/game/icons/home.png", "source": "public/icons/home.png", "license": "project art" },
+    { "id": "profile-backpack", "path": "/assets/game/icons/profile-backpack.png", "source": "public/icons/backpack.png", "license": "project art" }
+  ],
+  "backgrounds": [
+    { "id": "home-sky", "path": "/assets/game/backgrounds/home-sky.png", "source": "public/worlds/shared/home-bg.png", "license": "project art" }
+  ],
+  "worlds": [
+    { "id": "island-math", "path": "/worlds/math/island.png", "license": "project art" },
+    { "id": "island-chinese", "path": "/worlds/chinese/island.png", "license": "project art" },
+    { "id": "island-english", "path": "/worlds/english/island.png", "license": "project art" },
+    { "id": "island-malay", "path": "/worlds/malay/island.png", "license": "project art" },
+    { "id": "island-science", "path": "/worlds/science/island.png", "license": "project art" }
+  ],
+  "externalSources": [
+    {
+      "name": "Kenney Game Icons",
+      "url": "https://kenney.nl/assets/game-icons",
+      "license": "CC0 1.0",
+      "note": "Use for future missing icons; existing PNGs are project art"
+    }
+  ]
+}
