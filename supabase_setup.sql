@@ -48,27 +48,34 @@ CREATE POLICY "Users can update their own stats" ON public.subject_stats FOR ALL
 CREATE POLICY "Users can view their own wallet" ON public.wallets FOR SELECT USING (auth.uid() = profile_id);
 CREATE POLICY "Users can update their own wallet" ON public.wallets FOR ALL USING (auth.uid() = profile_id);
 
--- 6. Friend Rooms
+-- 6. Friend Rooms (shared across Vercel serverless instances)
+-- Replaces the old UUID-linked schema so mock accounts can host/join.
+DROP TABLE IF EXISTS public.friend_rooms CASCADE;
+
 CREATE TABLE public.friend_rooms (
-  id BIGSERIAL PRIMARY KEY,
-  code TEXT UNIQUE NOT NULL,
-  host_id UUID REFERENCES public.profiles(id) NOT NULL,
-  guest_id UUID REFERENCES public.profiles(id),
-  status TEXT DEFAULT 'waiting',
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  code TEXT PRIMARY KEY,
+  payload JSONB NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
+
+CREATE INDEX friend_rooms_updated_at_idx ON public.friend_rooms (updated_at DESC);
 
 ALTER TABLE public.friend_rooms ENABLE ROW LEVEL SECURITY;
 
--- Allow everyone to view rooms (to join)
-CREATE POLICY "Anyone can view rooms" ON public.friend_rooms FOR SELECT USING (true);
--- Allow everyone to create rooms
-CREATE POLICY "Anyone can insert rooms" ON public.friend_rooms FOR INSERT WITH CHECK (true);
--- Allow host and guest to update rooms
-CREATE POLICY "Host and guest can update rooms" ON public.friend_rooms FOR UPDATE USING (
-  auth.uid() = host_id OR auth.uid() = guest_id OR guest_id IS NULL
-);
+CREATE POLICY "Anyone can view friend rooms" ON public.friend_rooms
+  FOR SELECT USING (true);
+CREATE POLICY "Anyone can create friend rooms" ON public.friend_rooms
+  FOR INSERT WITH CHECK (true);
+CREATE POLICY "Anyone can update friend rooms" ON public.friend_rooms
+  FOR UPDATE USING (true);
+CREATE POLICY "Anyone can delete friend rooms" ON public.friend_rooms
+  FOR DELETE USING (true);
 
--- 7. Enable Realtime for Friend Rooms
-ALTER publication supabase_realtime ADD TABLE friend_rooms;
+-- Optional realtime (lobby polling also works without this)
+DO $$
+BEGIN
+  ALTER PUBLICATION supabase_realtime ADD TABLE friend_rooms;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;

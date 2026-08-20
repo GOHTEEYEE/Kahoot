@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ChallengeShell } from "./ChallengeShell";
 import {
   cancelFriendRoom,
@@ -28,13 +28,56 @@ function currentPlayer(): FriendPlayer | null {
   };
 }
 
+function inviteUrl(code: string): string {
+  if (typeof window === "undefined") return code;
+  const url = new URL("/challenge/friend", window.location.origin);
+  url.searchParams.set("code", code);
+  return url.toString();
+}
+
 export function FriendBattle() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [roomCode, setRoomCode] = useState<string | null>(null);
   const [codeInput, setCodeInput] = useState("");
   const [phase, setPhase] = useState<Phase>("lobby");
   const [hint, setHint] = useState("");
   const startedRef = useRef(false);
+  const autoJoinTried = useRef(false);
+
+  useEffect(() => {
+    const fromLink = searchParams.get("code")?.replace(/\D/g, "").slice(0, 6) ?? "";
+    if (fromLink.length === 6) setCodeInput(fromLink);
+  }, [searchParams]);
+
+  useEffect(() => {
+    const fromLink = searchParams.get("code")?.replace(/\D/g, "").slice(0, 6) ?? "";
+    if (fromLink.length !== 6 || autoJoinTried.current) return;
+    if (!getCurrentAccount()) return;
+    autoJoinTried.current = true;
+    void (async () => {
+      setCodeInput(fromLink);
+      setPhase("joining");
+      const guest = currentPlayer();
+      if (!guest) {
+        setPhase("lobby");
+        setHint("请先登录另一个账号再打开邀请链接");
+        return;
+      }
+      const result = await joinFriendRoom(fromLink, guest);
+      if (result.ok && result.room.host && !startedRef.current) {
+        startedRef.current = true;
+        setPendingOpponent(
+          friendAsOpponent(result.room.host, { roomCode: result.room.code, role: "guest" }),
+        );
+        playSfx("challenge");
+        router.push("/battle");
+        return;
+      }
+      setPhase("lobby");
+      setHint(!result.ok ? result.error : "加入失败，请重试");
+    })();
+  }, [searchParams, router]);
 
   useEffect(() => {
     if (!roomCode || phase !== "waiting") return;
@@ -101,10 +144,22 @@ export function FriendBattle() {
     if (!roomCode) return;
     try {
       await navigator.clipboard.writeText(roomCode);
-      setHint("已复制，发给朋友吧！");
+      setHint("已复制房间码");
       playSfx("tap");
     } catch {
       setHint(roomCode);
+    }
+  }
+
+  async function copyInviteLink() {
+    if (!roomCode) return;
+    const link = inviteUrl(roomCode);
+    try {
+      await navigator.clipboard.writeText(link);
+      setHint("已复制邀请链接，发给朋友打开即可加入");
+      playSfx("tap");
+    } catch {
+      setHint(link);
     }
   }
 
@@ -118,7 +173,7 @@ export function FriendBattle() {
   }
 
   return (
-    <ChallengeShell title="Friend Battle" subtitle="局域网联机" backHref="/challenge">
+    <ChallengeShell title="Friend Battle" subtitle="在线联机 · 房间码或邀请链接" backHref="/challenge">
       {phase === "lobby" || phase === "joining" ? (
         <div className="flex flex-1 flex-col gap-4 pt-2">
           <button
@@ -151,8 +206,7 @@ export function FriendBattle() {
           </div>
           {hint ? <p className="text-center text-sm font-extrabold text-[#8a5a18]">{hint}</p> : null}
           <p className="text-center text-[11px] font-bold leading-relaxed text-[#6b5340]">
-            一台手机点 Create Room，另一台输入那个 6 位数再点 Join。
-            两边请登录不同账号（例如一台 Ali，一台 Mei Ling）。
+            一台手机点 Create Room，把房间码或邀请链接发给朋友；对方用另一个账号登录后 Join。
           </p>
         </div>
       ) : (
@@ -163,18 +217,27 @@ export function FriendBattle() {
           <p className="font-[family-name:var(--font-display)] text-5xl font-bold tracking-[0.18em] text-[#2a2118]">
             {roomCode}
           </p>
-          <button
-            type="button"
-            onClick={copyCode}
-            className="hud-chip rounded-full px-4 py-2 text-sm font-extrabold text-[#3d2f1e]"
-          >
-            Copy Code
-          </button>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={copyCode}
+              className="hud-chip rounded-full px-4 py-2 text-sm font-extrabold text-[#3d2f1e]"
+            >
+              Copy Code
+            </button>
+            <button
+              type="button"
+              onClick={copyInviteLink}
+              className="cta-green rounded-full px-4 py-2 text-sm font-extrabold text-white"
+            >
+              Copy Invite Link
+            </button>
+          </div>
           <p className="mt-4 font-[family-name:var(--font-display)] text-lg font-bold text-[#2a2118]">
             Waiting for Friend...
           </p>
-          <p className="max-w-[16rem] text-[12px] font-bold text-[#6b5340]">
-            把这个码发给另一台手机，对方点 Join 后对战会自动开始。
+          <p className="max-w-[18rem] text-[12px] font-bold text-[#6b5340]">
+            把房间码或邀请链接发给另一台手机。对方登录不同账号后打开链接，对战会自动开始。
           </p>
           {hint ? <p className="text-sm font-bold text-[#8a5a18]">{hint}</p> : null}
           <button

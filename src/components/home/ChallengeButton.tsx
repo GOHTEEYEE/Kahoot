@@ -17,7 +17,7 @@ export function ChallengeButton({ onClick, disabled }: Props) {
       titleZh="挑战"
       titleEn="CHALLENGE"
       disabled={disabled}
-      flexBasisClass="basis-[58%]"
+      flexBasisClass="basis-[54%]"
       onClick={() => {
         playSfx("challenge");
         onClick();

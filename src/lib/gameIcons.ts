@@ -99,7 +99,7 @@ export const GAME_ICON_TIER: Record<GameIconId, GameIconTier> = {
 export const GAME_ICON_SIZES: Record<GameIconSize, string> = {
   nav: "h-9 w-9",
   challenge: "h-14 w-14",
-  worldMap: "h-11 w-11",
+  worldMap: "h-9 w-9",
   sideHud: "h-8 w-8",
   quickAction: "h-[clamp(2.35rem,9.5vw,3.1rem)] w-[clamp(2.35rem,9.5vw,3.1rem)]",
   utility: "h-5 w-5",

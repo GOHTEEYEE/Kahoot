@@ -217,7 +217,7 @@ export function ChangeWorldButton({ onClick }: { onClick: () => void }) {
       iconSize="worldMap"
       titleZh="世界地图"
       titleEn="WORLD MAP"
-      flexBasisClass="basis-[38%]"
+      flexBasisClass="basis-[44%]"
       onClick={() => {
         playSfx("whoosh");
         onClick();
