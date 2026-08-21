@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import type { AdventureLocation } from "../../lib/adventure";
 import { playSfx } from "../../lib/audio/sfx";
 import { GameIcon } from "../home/GameIcon";
+import { getPlayCopy } from "../../lib/i18n/play";
+import { useLocale } from "../../lib/i18n/useLocale";
 
 type Props = {
   location: AdventureLocation;
@@ -14,6 +16,9 @@ type Props = {
 };
 
 export function AdventureLocationCard({ location, locked, cleared, remain, onEnter }: Props) {
+  const { locale } = useLocale();
+  const play = getPlayCopy(locale);
+  const name = locale === "zh" ? location.name : location.nameEn;
   return (
     <motion.button
       type="button"
@@ -37,21 +42,23 @@ export function AdventureLocationCard({ location, locked, cleared, remain, onEnt
       </span>
       <span className="min-w-0 flex-1">
         <span className="block font-[family-name:var(--font-display)] text-[16px] font-bold leading-tight">
-          {location.name}
+          {name}
         </span>
-        <span className="block text-[11px] font-extrabold text-[#6b5340]">{location.nameEn}</span>
+        {locale === "zh" ? (
+          <span className="block text-[11px] font-extrabold text-[#6b5340]">{location.nameEn}</span>
+        ) : null}
         <span className="mt-0.5 block text-[10px] font-bold text-[#8a5a18]">{location.description}</span>
       </span>
       <span className="shrink-0 text-right text-[10px] font-extrabold">
         {locked ? (
           <>
             <GameIcon name="trophy" className="mx-auto h-4 w-4" />
-            还差 {remain}
+            {play.remain(remain)}
           </>
         ) : cleared ? (
-          "已探索"
+          play.explored
         ) : (
-          "进入"
+          play.enter
         )}
       </span>
     </motion.button>

@@ -3,9 +3,13 @@
 import { useEffect, useState } from "react";
 import { GameModal } from "../game-ui/GameModal";
 import { MALAYSIA_STATES } from "../../lib/account";
-import { GRADES, type Grade, gradeLabel } from "../../lib/curriculum";
+import { GRADES, type Grade } from "../../lib/curriculum";
 import { AVATAR_OPTIONS, type ProfileSnapshot } from "../../lib/profile";
 import { playSfx } from "../../lib/audio/sfx";
+import { localizedGrade } from "../../lib/i18n/home";
+import { localizedAvatarLabel } from "../../lib/i18n/labels";
+import { getProfileCopy } from "../../lib/i18n/profile";
+import { useLocale } from "../../lib/i18n/useLocale";
 
 export type EditDraft = {
   displayName: string;
@@ -35,6 +39,8 @@ function draftFrom(profile: ProfileSnapshot): EditDraft {
 }
 
 export function EditProfileModal({ open, profile, onClose, onSave }: Props) {
+  const { locale } = useLocale();
+  const copy = getProfileCopy(locale);
   const [draft, setDraft] = useState<EditDraft>(() => draftFrom(profile));
   const [savedFlash, setSavedFlash] = useState(false);
 
@@ -48,8 +54,8 @@ export function EditProfileModal({ open, profile, onClose, onSave }: Props) {
   return (
     <GameModal
       open={open}
-      title="编辑资料"
-      subtitle="更新你的学习英雄档案"
+      title={copy.editTitle}
+      subtitle={copy.editSubtitle}
       onClose={onClose}
       footer={
         <button
@@ -65,12 +71,12 @@ export function EditProfileModal({ open, profile, onClose, onSave }: Props) {
           }}
           className="cta-green w-full rounded-[1.1rem] py-3 font-[family-name:var(--font-display)] text-lg font-bold text-white shadow-[0_4px_0_#2a9828]"
         >
-          {savedFlash ? "已保存 ✓" : "保存"}
+          {savedFlash ? copy.saved : copy.save}
         </button>
       }
     >
       <label className="block text-[11px] font-extrabold text-[#8a5a18]">
-        昵称
+        {copy.nickname}
         <input
           value={draft.displayName}
           onChange={(e) => setDraft((d) => ({ ...d, displayName: e.target.value }))}
@@ -79,13 +85,13 @@ export function EditProfileModal({ open, profile, onClose, onSave }: Props) {
         />
       </label>
 
-      <p className="mt-3 text-[11px] font-extrabold text-[#8a5a18]">头像</p>
+      <p className="mt-3 text-[11px] font-extrabold text-[#8a5a18]">{copy.avatar}</p>
       <div className="mt-1 grid grid-cols-4 gap-2">
         {AVATAR_OPTIONS.map((opt) => (
           <button
             key={opt.id}
             type="button"
-            aria-label={opt.label}
+            aria-label={localizedAvatarLabel(opt.id, locale)}
             onClick={() => {
               playSfx("tap");
               setDraft((d) => ({ ...d, avatar: opt.src }));
@@ -102,7 +108,7 @@ export function EditProfileModal({ open, profile, onClose, onSave }: Props) {
 
       <div className="mt-3 grid grid-cols-2 gap-2">
         <label className="block text-[11px] font-extrabold text-[#8a5a18]">
-          年龄
+          {copy.age}
           <input
             type="number"
             min={6}
@@ -113,7 +119,7 @@ export function EditProfileModal({ open, profile, onClose, onSave }: Props) {
           />
         </label>
         <label className="block text-[11px] font-extrabold text-[#8a5a18]">
-          年级
+          {copy.grade}
           <select
             value={draft.grade}
             onChange={(e) => setDraft((d) => ({ ...d, grade: Number(e.target.value) as Grade }))}
@@ -121,7 +127,7 @@ export function EditProfileModal({ open, profile, onClose, onSave }: Props) {
           >
             {GRADES.map((g) => (
               <option key={g} value={g}>
-                {gradeLabel(g)}
+                {localizedGrade(g, locale)}
               </option>
             ))}
           </select>
@@ -129,7 +135,7 @@ export function EditProfileModal({ open, profile, onClose, onSave }: Props) {
       </div>
 
       <label className="mt-3 block text-[11px] font-extrabold text-[#8a5a18]">
-        学校
+        {copy.school}
         <input
           value={draft.school}
           onChange={(e) => setDraft((d) => ({ ...d, school: e.target.value }))}
@@ -138,7 +144,7 @@ export function EditProfileModal({ open, profile, onClose, onSave }: Props) {
       </label>
 
       <label className="mt-3 block text-[11px] font-extrabold text-[#8a5a18]">
-        Negeri / 州属
+        {copy.state}
         <select
           value={draft.state}
           onChange={(e) => setDraft((d) => ({ ...d, state: e.target.value }))}
@@ -166,8 +172,11 @@ type AvatarProps = {
 };
 
 export function AvatarPickerModal({ open, current, onClose, onPick }: AvatarProps) {
+  const { locale } = useLocale();
+  const copy = getProfileCopy(locale);
+
   return (
-    <GameModal open={open} title="更换头像" subtitle="选择你的学习英雄形象" onClose={onClose}>
+    <GameModal open={open} title={copy.pickAvatarTitle} subtitle={copy.pickAvatarSubtitle} onClose={onClose}>
       <div className="grid grid-cols-3 gap-3">
         {AVATAR_OPTIONS.map((opt) => (
           <button
@@ -183,9 +192,13 @@ export function AvatarPickerModal({ open, current, onClose, onPick }: AvatarProp
             }`}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={opt.src} alt={opt.label} className="aspect-square w-full object-cover object-[50%_20%]" />
+            <img
+              src={opt.src}
+              alt={localizedAvatarLabel(opt.id, locale)}
+              className="aspect-square w-full object-cover object-[50%_20%]"
+            />
             <p className="bg-[#fff8ea] py-1 text-center text-[10px] font-extrabold text-[#3d2f1e]">
-              {opt.label}
+              {localizedAvatarLabel(opt.id, locale)}
             </p>
           </button>
         ))}

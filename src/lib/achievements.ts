@@ -4,6 +4,8 @@ import { SUBJECTS } from "./curriculum";
 import { overallMastery, subjectMasteryMap } from "./mastery";
 import { getLearningStreak } from "./learningLog";
 import { getLeaderboard } from "./storage";
+import type { AppLocale } from "./i18n/locale";
+import { formatAchievementProgress, getAchievementCopy } from "./i18n/achievements";
 
 export type AchievementDef = {
   id: string;
@@ -118,7 +120,10 @@ function unlockedDate(account: StudentAccount, unlocked: boolean): string | null
   return `${y}-${m}-${day}`;
 }
 
-export function evaluateAchievements(account: StudentAccount): AchievementView[] {
+export function evaluateAchievements(
+  account: StudentAccount,
+  locale: AppLocale = "zh",
+): AchievementView[] {
   const trophies = totalTrophies(account);
   const mastery = subjectMasteryMap(account);
   const overall = overallMastery(mastery);
@@ -152,7 +157,10 @@ export function evaluateAchievements(account: StudentAccount): AchievementView[]
     "streak-7": {
       unlocked: streak >= 7,
       progress: pct(streak, 7),
-      progressLabel: `${Math.min(streak, 7)} / 7 天`,
+      progressLabel: formatAchievementProgress("streak-7", locale, {
+        current: Math.min(streak, 7),
+        target: 7,
+      }),
     },
     thinker: {
       unlocked: overall >= 60,
@@ -167,7 +175,11 @@ export function evaluateAchievements(account: StudentAccount): AchievementView[]
     top10: {
       unlocked: rank <= 10,
       progress: rank <= 10 ? 100 : pct(Math.max(0, 50 - rank), 40),
-      progressLabel: rank < 999 ? `第 ${rank} 名` : "未上榜",
+      progressLabel: formatAchievementProgress("top10", locale, {
+        current: rank,
+        rank,
+        unranked: rank >= 999,
+      }),
     },
     "subject-ace": {
       unlocked: maxMastery >= 80,
@@ -187,7 +199,10 @@ export function evaluateAchievements(account: StudentAccount): AchievementView[]
     "streak-3": {
       unlocked: streak >= 3,
       progress: pct(streak, 3),
-      progressLabel: `${Math.min(streak, 3)} / 3 天`,
+      progressLabel: formatAchievementProgress("streak-3", locale, {
+        current: Math.min(streak, 3),
+        target: 3,
+      }),
     },
     "winner-10": {
       unlocked: wins >= 10,
@@ -198,8 +213,12 @@ export function evaluateAchievements(account: StudentAccount): AchievementView[]
 
   return ACHIEVEMENT_DEFS.map((def) => {
     const c = checks[def.id] ?? { unlocked: false, progress: 0, progressLabel: "0" };
+    const copy = getAchievementCopy(def.id, locale);
     return {
       ...def,
+      name: copy?.name ?? def.name,
+      description: copy?.description ?? def.description,
+      condition: copy?.condition ?? def.condition,
       unlocked: c.unlocked,
       progress: c.progress,
       progressLabel: c.progressLabel,

@@ -14,6 +14,8 @@ import {
 import { setPendingOpponent } from "../../lib/opponent";
 import { getCurrentAccount, getSelectedSubject, getSubjectStats } from "../../lib/storage";
 import { playSfx } from "../../lib/audio/sfx";
+import { getChallengeCopy } from "../../lib/i18n/challenge";
+import { useLocale } from "../../lib/i18n/useLocale";
 
 type Phase = "lobby" | "waiting" | "joining";
 
@@ -37,6 +39,8 @@ function inviteUrl(code: string): string {
 
 export function FriendBattle() {
   const router = useRouter();
+  const { locale } = useLocale();
+  const copy = getChallengeCopy(locale);
   const searchParams = useSearchParams();
   const [roomCode, setRoomCode] = useState<string | null>(null);
   const [codeInput, setCodeInput] = useState("");
@@ -61,7 +65,7 @@ export function FriendBattle() {
       const guest = currentPlayer();
       if (!guest) {
         setPhase("lobby");
-        setHint("请先登录另一个账号再打开邀请链接");
+        setHint(copy.loginOther);
         return;
       }
       const result = await joinFriendRoom(fromLink, guest);
@@ -75,9 +79,9 @@ export function FriendBattle() {
         return;
       }
       setPhase("lobby");
-      setHint(!result.ok ? result.error : "加入失败，请重试");
+      setHint(!result.ok ? (copy.errors[result.error] ?? copy.joinFailed) : copy.joinFailed);
     })();
-  }, [searchParams, router]);
+  }, [searchParams, router, copy]);
 
   useEffect(() => {
     if (!roomCode || phase !== "waiting") return;
@@ -98,7 +102,7 @@ export function FriendBattle() {
     const host = currentPlayer();
     if (!host) return;
 
-    setHint("正在创建房间...");
+    setHint(copy.creating);
     const account = getCurrentAccount();
     if (!account) return;
     const result = await createFriendRoom(host, account.grade, getSelectedSubject());
@@ -110,7 +114,7 @@ export function FriendBattle() {
       playSfx("hud");
       return;
     }
-    setHint(result.error);
+    setHint(copy.errors[result.error] ?? result.error);
   }
 
   async function onJoin() {
@@ -119,7 +123,7 @@ export function FriendBattle() {
 
     const trimmed = codeInput.trim();
     if (trimmed.length < 6) {
-      setHint("请输入房主手机上显示的 6 位房间码");
+      setHint(copy.needCode);
       return;
     }
 
@@ -137,14 +141,14 @@ export function FriendBattle() {
     }
 
     setPhase("lobby");
-    setHint(!result.ok ? result.error : "加入失败，请重试");
+      setHint(!result.ok ? (copy.errors[result.error] ?? copy.joinFailed) : copy.joinFailed);
   }
 
   async function copyCode() {
     if (!roomCode) return;
     try {
       await navigator.clipboard.writeText(roomCode);
-      setHint("已复制房间码");
+      setHint(copy.copiedCode);
       playSfx("tap");
     } catch {
       setHint(roomCode);
@@ -156,7 +160,7 @@ export function FriendBattle() {
     const link = inviteUrl(roomCode);
     try {
       await navigator.clipboard.writeText(link);
-      setHint("已复制邀请链接，发给朋友打开即可加入");
+      setHint(copy.copiedInvite);
       playSfx("tap");
     } catch {
       setHint(link);
@@ -173,7 +177,7 @@ export function FriendBattle() {
   }
 
   return (
-    <ChallengeShell title="Friend Battle" subtitle="在线联机 · 房间码或邀请链接" backHref="/challenge">
+    <ChallengeShell title={copy.modes.friend.title} subtitle={copy.friendSubtitle} backHref="/challenge">
       {phase === "lobby" || phase === "joining" ? (
         <div className="flex flex-1 flex-col gap-4 pt-2">
           <button
@@ -182,11 +186,11 @@ export function FriendBattle() {
             disabled={phase === "joining"}
             className="cta-gold rounded-[1.2rem] py-4 font-[family-name:var(--font-display)] text-xl font-bold text-[#4a320e] disabled:opacity-50"
           >
-            Create Room
+            {copy.createRoom}
           </button>
           <div className="hud-dark rounded-[1.2rem] p-4">
             <p className="text-[10px] font-extrabold tracking-[0.14em] text-[#c4b08a] uppercase">
-              Enter Room Code
+              {copy.enterCode}
             </p>
             <input
               value={codeInput}
@@ -201,18 +205,18 @@ export function FriendBattle() {
               disabled={phase === "joining"}
               className="cta-green mt-3 w-full rounded-[1.05rem] py-3 font-[family-name:var(--font-display)] text-lg font-bold text-white disabled:opacity-50"
             >
-              {phase === "joining" ? "加入中..." : "Join"}
+              {phase === "joining" ? copy.joining : copy.join}
             </button>
           </div>
           {hint ? <p className="text-center text-sm font-extrabold text-[#8a5a18]">{hint}</p> : null}
           <p className="text-center text-[11px] font-bold leading-relaxed text-[#6b5340]">
-            一台手机点 Create Room，把房间码或邀请链接发给朋友；对方用另一个账号登录后 Join。
+            {copy.howTo}
           </p>
         </div>
       ) : (
         <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center">
           <p className="text-[10px] font-extrabold tracking-[0.16em] text-[#8a5a18] uppercase">
-            Your Room Code
+            {copy.yourCode}
           </p>
           <p className="font-[family-name:var(--font-display)] text-5xl font-bold tracking-[0.18em] text-[#2a2118]">
             {roomCode}
@@ -223,28 +227,28 @@ export function FriendBattle() {
               onClick={copyCode}
               className="hud-chip rounded-full px-4 py-2 text-sm font-extrabold text-[#3d2f1e]"
             >
-              Copy Code
+              {copy.copyCode}
             </button>
             <button
               type="button"
               onClick={copyInviteLink}
               className="cta-green rounded-full px-4 py-2 text-sm font-extrabold text-white"
             >
-              Copy Invite Link
+              {copy.copyInvite}
             </button>
           </div>
           <p className="mt-4 font-[family-name:var(--font-display)] text-lg font-bold text-[#2a2118]">
-            Waiting for Friend...
+            {copy.waitingFriend}
           </p>
           <p className="max-w-[18rem] text-[12px] font-bold text-[#6b5340]">
-            把房间码或邀请链接发给另一台手机。对方登录不同账号后打开链接，对战会自动开始。
+            {copy.waitingHint}
           </p>
           {hint ? <p className="text-sm font-bold text-[#8a5a18]">{hint}</p> : null}
           <button
             onClick={backToLobby}
             className="mt-6 text-xs font-bold text-[#6b5340] underline"
           >
-            返回
+            {copy.backLabel}
           </button>
         </div>
       )}

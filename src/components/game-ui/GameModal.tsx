@@ -3,6 +3,8 @@
 import type { ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { playSfx } from "../../lib/audio/sfx";
+import { getSharedLabels } from "../../lib/i18n/labels";
+import { useLocale } from "../../lib/i18n/useLocale";
 
 type Props = {
   open: boolean;
@@ -18,6 +20,8 @@ type Props = {
  * Reusable cream game sheet modal — matches Home / World picker language.
  */
 export function GameModal({ open, title, subtitle, onClose, children, footer }: Props) {
+  const { locale } = useLocale();
+  const labels = getSharedLabels(locale);
   return (
     <AnimatePresence>
       {open ? (
@@ -57,7 +61,7 @@ export function GameModal({ open, title, subtitle, onClose, children, footer }: 
                 </div>
                 <button
                   type="button"
-                  aria-label="关闭"
+                  aria-label={labels.close}
                   onClick={() => {
                     playSfx("tap");
                     onClose();

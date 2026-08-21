@@ -8,6 +8,8 @@ import {
 } from "../../lib/worlds";
 import { TrophyCount } from "../TrophyCount";
 import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion";
+import { getHomeCopy } from "../../lib/i18n/home";
+import { useLocale } from "../../lib/i18n/useLocale";
 import { GameIcon } from "../home/GameIcon";
 
 type Props = {
@@ -18,6 +20,8 @@ type Props = {
 /** Dark RPG-style progression rail below the island hero. */
 export function GameTrophyBar({ trophies, mascotName }: Props) {
   const reduced = usePrefersReducedMotion();
+  const { locale } = useLocale();
+  const copy = getHomeCopy(locale);
   const next = getNextTrophyReward(trophies);
   const prev = getPreviousTrophyMilestone(trophies);
   const target = next?.trophies ?? Math.max(trophies, 1);
@@ -62,13 +66,13 @@ export function GameTrophyBar({ trophies, mascotName }: Props) {
           <div className="flex max-w-[42%] shrink-0 items-center gap-1.5 text-right">
             <div className="min-w-0">
               <p className="text-[6.5px] font-extrabold tracking-[0.12em] text-white/45">
-                NEXT REWARD
+                {copy.nextReward}
               </p>
               <p className="truncate text-[10px] font-extrabold text-[#ffe27a]">
                 {rewardLabel}
               </p>
               <p className="text-[7.5px] font-bold text-white/60">
-                {need} Trophy to unlock
+                {copy.trophyToUnlock(need)}
               </p>
             </div>
             <span className="reward-orb-glow flex h-8 w-8 shrink-0 items-center justify-center rounded-[0.65rem] bg-gradient-to-b from-[#9a72ff] to-[#7046d8] ring-1 ring-white/40">
@@ -76,7 +80,7 @@ export function GameTrophyBar({ trophies, mascotName }: Props) {
             </span>
           </div>
         ) : (
-          <p className="text-[11px] font-bold text-[#ffe27a]">已集齐</p>
+          <p className="text-[11px] font-bold text-[#ffe27a]">{copy.allCollected}</p>
         )}
       </div>
     </section>

@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import type { ChallengeResult } from "../../lib/challenge";
 import { playSfx } from "../../lib/audio/sfx";
 import { GameIcon } from "../home/GameIcon";
+import { getPlayCopy } from "../../lib/i18n/play";
+import { useLocale } from "../../lib/i18n/useLocale";
 
 type Props = {
   title: string;
@@ -14,6 +16,8 @@ type Props = {
 };
 
 export function ChallengeResult({ title, result, extra, onAgain, onHome }: Props) {
+  const { locale } = useLocale();
+  const play = getPlayCopy(locale);
   return (
     <motion.section
       initial={{ opacity: 0, y: 10 }}
@@ -56,7 +60,7 @@ export function ChallengeResult({ title, result, extra, onAgain, onHome }: Props
           }}
           className="cta-gold flex-1 rounded-[1.05rem] py-3 font-[family-name:var(--font-display)] text-lg font-bold text-[#4a320e]"
         >
-          再来一次
+          {play.again}
         </button>
         <button
           type="button"
@@ -66,7 +70,7 @@ export function ChallengeResult({ title, result, extra, onAgain, onHome }: Props
           }}
           className="cta-green flex-1 rounded-[1.05rem] py-3 font-[family-name:var(--font-display)] text-lg font-bold text-white"
         >
-          返回
+          {play.back}
         </button>
       </div>
     </motion.section>

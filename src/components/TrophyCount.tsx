@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePrefersReducedMotion } from "../lib/usePrefersReducedMotion";
+import { getSharedLabels } from "../lib/i18n/labels";
+import { useLocale } from "../lib/i18n/useLocale";
 
 type Props = {
   value: number;
@@ -9,6 +11,8 @@ type Props = {
 };
 
 export function TrophyCount({ value, className = "" }: Props) {
+  const { locale } = useLocale();
+  const labels = getSharedLabels(locale);
   const reduced = usePrefersReducedMotion();
   const [display, setDisplay] = useState(reduced ? value : 0);
   const displayRef = useRef(reduced ? value : 0);
@@ -47,7 +51,7 @@ export function TrophyCount({ value, className = "" }: Props) {
   }, [value, reduced]);
 
   return (
-    <span className={className} aria-label={`${value} 奖杯`}>
+    <span className={className} aria-label={labels.trophyAria(value)}>
       {display}
     </span>
   );

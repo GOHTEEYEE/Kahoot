@@ -9,6 +9,24 @@ export type ChallengeCopy = {
     ChallengeMode,
     { title: string; description: string; reward: string }
   >;
+  friendSubtitle: string;
+  createRoom: string;
+  enterCode: string;
+  join: string;
+  joining: string;
+  howTo: string;
+  yourCode: string;
+  copyCode: string;
+  copyInvite: string;
+  waitingFriend: string;
+  waitingHint: string;
+  creating: string;
+  needCode: string;
+  loginOther: string;
+  joinFailed: string;
+  copiedCode: string;
+  copiedInvite: string;
+  errors: Record<string, string>;
 };
 
 export const CHALLENGE_I18N: Record<AppLocale, ChallengeCopy> = {
@@ -43,6 +61,32 @@ export const CHALLENGE_I18N: Record<AppLocale, ChallengeCopy> = {
         reward: "World Progress",
       },
     },
+    friendSubtitle: "Online · room code or invite link",
+    createRoom: "Create Room",
+    enterCode: "Enter Room Code",
+    join: "Join",
+    joining: "Joining...",
+    howTo: "One phone taps Create Room, then send the code or invite link. The friend logs in with another account and Joins.",
+    yourCode: "Your Room Code",
+    copyCode: "Copy Code",
+    copyInvite: "Copy Invite Link",
+    waitingFriend: "Waiting for Friend...",
+    waitingHint: "Send the code or invite link to another phone. After they log in with a different account and open the link, the battle starts.",
+    creating: "Creating room...",
+    needCode: "Enter the 6-digit room code shown on the host phone",
+    loginOther: "Log in with another account before opening the invite link",
+    joinFailed: "Couldn't join. Please try again",
+    copiedCode: "Room code copied",
+    copiedInvite: "Invite link copied — send it to a friend",
+    errors: {
+      not_found: "Room not found or expired. Ask the host to create a new one",
+      self: "You can't join your own room. Log in with another account",
+      full: "Room is full",
+      invalid: "Invalid request. Please try again",
+      db_required: "Online friend battles need Supabase. See supabase_friend_rooms.sql",
+      db_error: "Room server is unavailable. Please try again",
+      network: "Can't connect. Check your network and retry",
+    },
   },
   zh: {
     pageTitle: "选择挑战模式",
@@ -75,6 +119,32 @@ export const CHALLENGE_I18N: Record<AppLocale, ChallengeCopy> = {
         reward: "世界进度",
       },
     },
+    friendSubtitle: "在线联机 · 房间码或邀请链接",
+    createRoom: "创建房间",
+    enterCode: "输入房间码",
+    join: "加入",
+    joining: "加入中...",
+    howTo: "一台手机点创建房间，把房间码或邀请链接发给朋友；对方用另一个账号登录后加入。",
+    yourCode: "你的房间码",
+    copyCode: "复制房间码",
+    copyInvite: "复制邀请链接",
+    waitingFriend: "等待好友加入...",
+    waitingHint: "把房间码或邀请链接发给另一台手机。对方登录不同账号后打开链接，对战会自动开始。",
+    creating: "正在创建房间...",
+    needCode: "请输入房主手机上显示的 6 位房间码",
+    loginOther: "请先登录另一个账号再打开邀请链接",
+    joinFailed: "加入失败，请重试",
+    copiedCode: "已复制房间码",
+    copiedInvite: "已复制邀请链接，发给朋友打开即可加入",
+    errors: {
+      not_found: "房间不存在或已过期，请让房主重新开房",
+      self: "不能加入自己的房间，请用另一个账号登录",
+      full: "房间已满",
+      invalid: "请求无效，请重试",
+      db_required: "线上好友对战需要配置 Supabase，请看 supabase_friend_rooms.sql",
+      db_error: "房间服务器暂时不可用，请稍后再试",
+      network: "网络连不上，请检查网络后重试",
+    },
   },
   ms: {
     pageTitle: "Pilih Cabaran",
@@ -106,6 +176,32 @@ export const CHALLENGE_I18N: Record<AppLocale, ChallengeCopy> = {
         description: "Terokai Dunia Pembelajaran",
         reward: "Kemajuan Dunia",
       },
+    },
+    friendSubtitle: "Dalam talian · kod bilik atau pautan jemputan",
+    createRoom: "Cipta Bilik",
+    enterCode: "Masukkan Kod Bilik",
+    join: "Sertai",
+    joining: "Menyertai...",
+    howTo: "Satu telefon ketik Cipta Bilik, kemudian hantar kod atau pautan. Rakan log masuk dengan akaun lain lalu Sertai.",
+    yourCode: "Kod Bilik Anda",
+    copyCode: "Salin Kod",
+    copyInvite: "Salin Pautan Jemputan",
+    waitingFriend: "Menunggu rakan...",
+    waitingHint: "Hantar kod atau pautan ke telefon lain. Selepas mereka log masuk dengan akaun berbeza dan buka pautan, pertarungan bermula.",
+    creating: "Mencipta bilik...",
+    needCode: "Masukkan kod 6 digit yang dipaparkan pada telefon tuan rumah",
+    loginOther: "Log masuk dengan akaun lain sebelum membuka pautan jemputan",
+    joinFailed: "Tidak dapat sertai. Sila cuba lagi",
+    copiedCode: "Kod bilik disalin",
+    copiedInvite: "Pautan jemputan disalin — hantar kepada rakan",
+    errors: {
+      not_found: "Bilik tidak dijumpai atau tamat tempoh. Minta tuan rumah cipta baharu",
+      self: "Tidak boleh sertai bilik sendiri. Log masuk dengan akaun lain",
+      full: "Bilik penuh",
+      invalid: "Permintaan tidak sah. Sila cuba lagi",
+      db_required: "Pertarungan rakan dalam talian memerlukan Supabase. Lihat supabase_friend_rooms.sql",
+      db_error: "Pelayan bilik tidak tersedia. Sila cuba lagi",
+      network: "Tidak dapat sambung. Periksa rangkaian dan cuba lagi",
     },
   },
 };

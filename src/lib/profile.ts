@@ -1,7 +1,9 @@
 import type { StudentAccount, SubjectStats } from "./account";
 import { totalTrophies } from "./account";
 import type { Grade, SubjectId } from "./curriculum";
-import { SUBJECTS, gradeLabel, subjectLabel } from "./curriculum";
+import { SUBJECTS } from "./curriculum";
+import { localizedGrade, localizedSubject } from "./i18n/home";
+import { localizedWorldStageName } from "./i18n/labels";
 import { subjectMastery, subjectMasteryMap } from "./mastery";
 import { readWallet } from "./rewards";
 import { getNextWorldStage, getWorldStage } from "./worlds";
@@ -12,6 +14,8 @@ import {
   type DayActivity,
 } from "./learningLog";
 import { evaluateAchievements, type AchievementView } from "./achievements";
+import type { PlayerTitleId } from "./i18n/labels";
+import type { AppLocale } from "./i18n/locale";
 
 export const DEFAULT_AVATAR = "/worlds/chinese/momo.png?v=live";
 
@@ -31,13 +35,13 @@ export const XP_PER_LEVEL = 250;
 
 export const WEEKLY_CHALLENGE_GOAL = 10;
 
-const PLAYER_TITLES: { minTrophies: number; title: string }[] = [
-  { minTrophies: 800, title: "传奇" },
-  { minTrophies: 500, title: "大师" },
-  { minTrophies: 300, title: "黄金" },
-  { minTrophies: 150, title: "白银" },
-  { minTrophies: 50, title: "青铜" },
-  { minTrophies: 0, title: "新手营" },
+const PLAYER_TITLES: { minTrophies: number; id: PlayerTitleId }[] = [
+  { minTrophies: 800, id: "legend" },
+  { minTrophies: 500, id: "master" },
+  { minTrophies: 300, id: "gold" },
+  { minTrophies: 150, id: "silver" },
+  { minTrophies: 50, id: "bronze" },
+  { minTrophies: 0, id: "camp" },
 ];
 
 export type XpProgress = {
@@ -79,6 +83,7 @@ export type ProfileSnapshot = {
   gradeText: string;
   school: string;
   state: string;
+  titleId: PlayerTitleId;
   title: string;
   xp: XpProgress;
   trophies: number;
@@ -120,11 +125,15 @@ export function getXpProgress(totalXp: number): XpProgress {
   };
 }
 
-export function getPlayerTitle(trophies: number): string {
+export function getPlayerTitleId(trophies: number): PlayerTitleId {
   for (const row of PLAYER_TITLES) {
-    if (trophies >= row.minTrophies) return row.title;
+    if (trophies >= row.minTrophies) return row.id;
   }
-  return "新手营";
+  return "camp";
+}
+
+export function getPlayerTitle(trophies: number): string {
+  return getPlayerTitleId(trophies);
 }
 
 function gamesOf(stats: SubjectStats | undefined): number {
@@ -136,11 +145,14 @@ export function totalChallenges(account: StudentAccount): number {
   return SUBJECTS.reduce((sum, s) => sum + gamesOf(account.stats[s.id]), 0);
 }
 
-export function getLearningPower(account: StudentAccount): LearningPowerBreakdown {
+export function getLearningPower(
+  account: StudentAccount,
+  locale: AppLocale = "zh",
+): LearningPowerBreakdown {
   const mastery = subjectMasteryMap(account);
   const bySubject = SUBJECTS.map((s) => ({
     id: s.id,
-    name: s.name,
+    name: localizedSubject(s.id, locale),
     points: Math.round((mastery[s.id] ?? 0) * 1.2 + (account.stats[s.id]?.trophies ?? 0) * 0.35),
   }));
   const challengeBonus = SUBJECTS.reduce((sum, s) => {
@@ -153,7 +165,10 @@ export function getLearningPower(account: StudentAccount): LearningPowerBreakdow
   return { total, bySubject, challengeBonus, achievementBonus };
 }
 
-export function getSubjectProgress(account: StudentAccount): SubjectProgressRow[] {
+export function getSubjectProgress(
+  account: StudentAccount,
+  locale: AppLocale = "zh",
+): SubjectProgressRow[] {
   const mastery = subjectMasteryMap(account);
   return SUBJECTS.map((s) => {
     const stats = account.stats[s.id];
@@ -162,7 +177,7 @@ export function getSubjectProgress(account: StudentAccount): SubjectProgressRow[
     const next = getNextWorldStage(trophies);
     return {
       id: s.id,
-      name: s.name,
+      name: localizedSubject(s.id, locale),
       level: stage.level,
       mastery: mastery[s.id] ?? 0,
       trophies,
@@ -170,7 +185,7 @@ export function getSubjectProgress(account: StudentAccount): SubjectProgressRow[
       wins: stats?.wins ?? 0,
       toNextLevelTrophies: next ? Math.max(0, next.minTrophies - trophies) : null,
       nextLevel: next?.level ?? null,
-      arenaName: getWorldStage(trophies).name,
+      arenaName: localizedWorldStageName(stage.id, locale),
     };
   });
 }
@@ -201,12 +216,15 @@ export function getNextBreakthrough(
   };
 }
 
-export function buildProfileSnapshot(account: StudentAccount): ProfileSnapshot {
+export function buildProfileSnapshot(
+  account: StudentAccount,
+  locale: AppLocale = "zh",
+): ProfileSnapshot {
   const wallet = readWallet(account);
   const trophies = totalTrophies(account);
   const mastery = subjectMasteryMap(account);
-  const subjects = getSubjectProgress(account);
-  const achievements = evaluateAchievements(account);
+  const subjects = getSubjectProgress(account, locale);
+  const achievements = evaluateAchievements(account, locale);
   const unlockedCount = achievements.filter((a) => a.unlocked).length;
   const streak = getLearningStreak(account.id, account);
   const weekDays = getWeekActivity(account.id, account);
@@ -219,13 +237,14 @@ export function buildProfileSnapshot(account: StudentAccount): ProfileSnapshot {
     username: account.username,
     age: account.age,
     grade: account.grade,
-    gradeText: gradeLabel(account.grade),
+    gradeText: localizedGrade(account.grade, locale),
     school: account.school,
     state: account.state,
-    title: getPlayerTitle(trophies),
+    titleId: getPlayerTitleId(trophies),
+    title: getPlayerTitleId(trophies),
     xp: getXpProgress(wallet.xp),
     trophies,
-    learningPower: getLearningPower(account),
+    learningPower: getLearningPower(account, locale),
     streak,
     completedChallenges: totalChallenges(account),
     mastery,
@@ -241,7 +260,10 @@ export function buildProfileSnapshot(account: StudentAccount): ProfileSnapshot {
   };
 }
 
-export function subjectTrophyHistory(account: StudentAccount): {
+export function subjectTrophyHistory(
+  account: StudentAccount,
+  locale: AppLocale = "zh",
+): {
   id: SubjectId;
   name: string;
   trophies: number;
@@ -249,7 +271,7 @@ export function subjectTrophyHistory(account: StudentAccount): {
 }[] {
   return SUBJECTS.map((s) => ({
     id: s.id,
-    name: subjectLabel(s.id),
+    name: localizedSubject(s.id, locale),
     trophies: account.stats[s.id]?.trophies ?? 0,
     wins: account.stats[s.id]?.wins ?? 0,
   }));

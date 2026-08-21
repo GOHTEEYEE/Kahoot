@@ -5,6 +5,9 @@ import { animate, useMotionValue, useMotionValueEvent } from "framer-motion";
 import type { SubjectId } from "../../lib/curriculum";
 import { MASTERY_SUBJECTS } from "../../lib/mastery";
 import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion";
+import { localizedSubject } from "../../lib/i18n/home";
+import { getProfileCopy } from "../../lib/i18n/profile";
+import { useLocale } from "../../lib/i18n/useLocale";
 
 const SIZE = 320;
 const CX = 160;
@@ -38,6 +41,8 @@ function poly(ts: number[]): string {
 
 /** Ability radar — no center character / avatar. */
 export function MasteryRadar({ values }: Props) {
+  const { locale } = useLocale();
+  const copy = getProfileCopy(locale);
   const reduced = usePrefersReducedMotion();
   const uid = useId().replace(/:/g, "");
   const progress = useMotionValue(reduced ? 1 : 0);
@@ -70,7 +75,7 @@ export function MasteryRadar({ values }: Props) {
     <div
       className="relative mx-auto aspect-square w-full max-w-[15.5rem]"
       role="img"
-      aria-label={`科目能力雷达。${MASTERY_SUBJECTS.map((s) => `${s.hud} ${values[s.id] ?? 0}`).join("，")}`}
+      aria-label={`${copy.radarAria}. ${MASTERY_SUBJECTS.map((s) => `${localizedSubject(s.id, locale)} ${values[s.id] ?? 0}`).join(", ")}`}
     >
       <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="h-full w-full overflow-visible" aria-hidden>
         <defs>
@@ -138,7 +143,7 @@ export function MasteryRadar({ values }: Props) {
             style={{ left: `${(p.x / SIZE) * 100}%`, top: `${(p.y / SIZE) * 100}%` }}
           >
             <p className="font-[family-name:var(--font-display)] text-[11px] font-bold leading-tight text-[#3d2f1e]">
-              {s.hud}
+              {localizedSubject(s.id, locale)}
             </p>
           </div>
         );

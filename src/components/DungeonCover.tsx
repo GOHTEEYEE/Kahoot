@@ -2,6 +2,9 @@
 
 import type { CSSProperties } from "react";
 import type { DungeonMeta } from "../lib/curriculum";
+import { localizedSubject } from "../lib/i18n/home";
+import { getPlayCopy } from "../lib/i18n/play";
+import { useLocale } from "../lib/i18n/useLocale";
 
 type Props = {
   dungeon: DungeonMeta;
@@ -17,6 +20,8 @@ export function DungeonCover({
   gradeLabelText,
   onSelect,
 }: Props) {
+  const { locale } = useLocale();
+  const play = getPlayCopy(locale);
   return (
     <button
       type="button"
@@ -41,15 +46,15 @@ export function DungeonCover({
       <div className="relative z-10 flex h-full flex-col justify-between p-4 text-white">
         <div className="flex items-start justify-between gap-2">
           <span className="rounded-full bg-black/25 px-2.5 py-1 text-[11px] font-extrabold tracking-wide backdrop-blur-sm">
-            {dungeon.name}副本
+            {play.dungeonTag(localizedSubject(dungeon.id, locale))}
           </span>
           {selected ? (
             <span className="animate-pop rounded-full bg-[var(--accent)] px-2.5 py-1 text-[11px] font-extrabold text-[var(--ink)]">
-              已选中
+              {play.selected}
             </span>
           ) : (
             <span className="rounded-full bg-white/20 px-2.5 py-1 text-[11px] font-extrabold backdrop-blur-sm">
-              可挑战
+              {play.challengeable}
             </span>
           )}
         </div>
@@ -60,7 +65,7 @@ export function DungeonCover({
           </h3>
           <p className="mt-1 text-sm font-bold text-white/85">{dungeon.tagline}</p>
           <p className="mt-3 text-xs font-extrabold tracking-wide text-white/75">
-            难度 · {gradeLabelText}
+            {play.difficulty(gradeLabelText)}
           </p>
         </div>
       </div>

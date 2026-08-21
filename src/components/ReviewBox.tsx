@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import type { Question } from "../lib/questions";
 import type { SubjectId } from "../lib/curriculum";
+import { getSharedLabels } from "../lib/i18n/labels";
+import { getPlayCopy } from "../lib/i18n/play";
+import { useLocale } from "../lib/i18n/useLocale";
 
 export type ReviewItem = {
   question: Question;
@@ -18,6 +21,9 @@ type Props = {
 };
 
 export function ReviewBox({ open, subject, items, onClose }: Props) {
+  const { locale } = useLocale();
+  const copy = getPlayCopy(locale);
+  const labels = getSharedLabels(locale);
   const [explanations, setExplanations] = useState<Record<string, string>>({});
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
@@ -46,17 +52,18 @@ export function ReviewBox({ open, subject, items, onClose }: Props) {
           playerChoice: item.playerChoice,
           questionId: item.question.id,
           grade: item.question.grade,
+          language: locale,
         }),
       });
       const data = (await res.json()) as { explanation?: string };
       setExplanations((prev) => ({
         ...prev,
-        [id]: data.explanation ?? "暂时无法生成讲解，请稍后再试。",
+        [id]: data.explanation ?? copy.explainFail,
       }));
     } catch {
       setExplanations((prev) => ({
         ...prev,
-        [id]: "网络出错，请稍后再试。",
+        [id]: copy.explainNetwork,
       }));
     } finally {
       setLoadingId(null);
@@ -76,10 +83,10 @@ export function ReviewBox({ open, subject, items, onClose }: Props) {
               Loot Review Box
             </p>
             <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[var(--ink)]">
-              复盘宝箱
+              {copy.reviewTitle}
             </h2>
             <p className="text-sm font-bold text-[var(--ink-soft)]">
-              答对 {correctCount}/{items.length} · 点题目可看 AI 讲解
+              {copy.reviewSub(correctCount, items.length)}
             </p>
           </div>
           <button
@@ -87,7 +94,7 @@ export function ReviewBox({ open, subject, items, onClose }: Props) {
             onClick={onClose}
             className="rounded-full bg-[var(--bg-top)] px-3 py-1.5 text-sm font-extrabold text-[var(--ink)]"
           >
-            关闭
+            {labels.close}
           </button>
         </div>
 
@@ -96,7 +103,7 @@ export function ReviewBox({ open, subject, items, onClose }: Props) {
             const correct = item.playerChoice === item.question.correctIndex;
             const chosen =
               item.playerChoice == null
-                ? "未作答"
+                ? copy.unanswered
                 : item.question.options[item.playerChoice];
             const answer = item.question.options[item.question.correctIndex];
             const explanation = explanations[item.question.id];
@@ -110,7 +117,7 @@ export function ReviewBox({ open, subject, items, onClose }: Props) {
               >
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-sm font-extrabold text-[var(--ink)]">
-                    第 {index + 1} 题 · {correct ? "正确" : "错误"}
+                    {copy.questionN(index + 1, correct)}
                     {item.points > 0 ? ` · +${item.points}` : ""}
                   </p>
                   <span
@@ -118,14 +125,14 @@ export function ReviewBox({ open, subject, items, onClose }: Props) {
                       correct ? "bg-[var(--green)]" : "bg-[var(--red)]"
                     }`}
                   >
-                    {correct ? "OK" : "错"}
+                    {correct ? "OK" : copy.wrong}
                   </span>
                 </div>
                 <p className="mt-1 text-sm font-bold text-[var(--ink)]">{item.question.prompt}</p>
                 <p className="mt-2 text-xs font-bold text-[var(--ink-soft)]">
-                  你的答案：{chosen}
+                  {copy.yourAnswer}{chosen}
                 </p>
-                <p className="text-xs font-bold text-[var(--brand-deep)]">正确答案：{answer}</p>
+                <p className="text-xs font-bold text-[var(--brand-deep)]">{copy.correctAnswer}{answer}</p>
 
                 <button
                   type="button"
@@ -133,10 +140,10 @@ export function ReviewBox({ open, subject, items, onClose }: Props) {
                   className="pressable mt-3 rounded-full bg-[var(--ink)] px-3 py-1.5 text-xs font-extrabold text-white"
                 >
                   {loadingId === item.question.id
-                    ? "AI 讲解中…"
+                    ? copy.explaining
                     : explanation
-                      ? "再看一遍讲解"
-                      : "AI 讲解"}
+                      ? copy.explainAgain
+                      : copy.explainAi}
                 </button>
 
                 {explanation ? (

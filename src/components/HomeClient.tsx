@@ -23,11 +23,15 @@ import {
 } from "../lib/storage";
 import { getMockEconomy, getSubjectWorld } from "../lib/worlds";
 import { readWallet } from "../lib/rewards";
+import { getHomeCopy } from "../lib/i18n/home";
+import { useLocale } from "../lib/i18n/useLocale";
 import { usePrefersReducedMotion } from "../lib/usePrefersReducedMotion";
 
 export function HomeClient() {
   const router = useRouter();
   const reduced = usePrefersReducedMotion();
+  const { locale } = useLocale();
+  const copy = getHomeCopy(locale);
   const [account, setAccount] = useState<StudentAccount | null>(null);
   const [subject, setSubject] = useState<SubjectId>("math");
   const [checking, setChecking] = useState(true);
@@ -112,7 +116,7 @@ export function HomeClient() {
           M
         </motion.div>
         <p className="font-[family-name:var(--font-display)] text-lg font-bold text-[#6b5340]">
-          正在进入 MathArena...
+          {copy.loading}
         </p>
         <div className="h-1.5 w-32 overflow-hidden rounded-full bg-[#3c3425]/10 ring-1 ring-white/40">
           <motion.div
@@ -151,8 +155,8 @@ export function HomeClient() {
           coins={economy.coins}
           gems={economy.gems}
           avatarSrc={account.avatar || "/worlds/chinese/momo.png?v=live"}
-          onNotify={() => flash("暂无新通知")}
-          onMail={() => flash("暂无新邮件")}
+          onNotify={() => flash(copy.noNotify)}
+          onMail={() => flash(copy.noMail)}
         />
       </motion.div>
 
@@ -168,10 +172,10 @@ export function HomeClient() {
           onIslandClick={() => setPickerOpen(true)}
         >
           <SideActions
-            onChest={() => flash("Daily Chest 已领取")}
-            onMission={() => flash("完成 1 场 Challenge 吧！")}
-            onEvent={() => flash("活动即将开始")}
-            onSeason={() => flash("赛季奖励已更新")}
+            onChest={() => flash(copy.toastChest)}
+            onMission={() => flash(copy.toastMission)}
+            onEvent={() => flash(copy.toastEvent)}
+            onSeason={() => flash(copy.toastSeason)}
             onWorld={() => setPickerOpen(true)}
           />
         </WorldDiorama>

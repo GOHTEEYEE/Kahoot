@@ -3,6 +3,7 @@ import { Fredoka, Nunito } from "next/font/google";
 import "./globals.css";
 import { SfxBoot } from "../components/SfxBoot";
 import { DebugConsole } from "../components/DebugConsole";
+import { HtmlLang } from "../components/HtmlLang";
 
 const display = Fredoka({
   variable: "--font-display",
@@ -17,8 +18,8 @@ const body = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "MathArena · 学习擂台",
-  description: "小学1–6年级对战：华文、英文、马来文、数学、科学，赢取奖杯冲排行榜",
+  title: "MathArena",
+  description: "Primary quiz battles: Chinese, English, Malay, Math, Science. Earn trophies and climb the ranks.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -28,6 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${display.variable} ${body.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
+        <HtmlLang />
         <DebugConsole />
         <SfxBoot />
         {children}

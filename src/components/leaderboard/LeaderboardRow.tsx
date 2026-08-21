@@ -4,6 +4,9 @@ import { motion } from "framer-motion";
 import { playSfx } from "../../lib/audio/sfx";
 import type { LeaderboardEntry } from "../../lib/leaderboard";
 import { GameIcon } from "../home/GameIcon";
+import { localizedGrade } from "../../lib/i18n/home";
+import { getSharedLabels, localizedRankName } from "../../lib/i18n/labels";
+import { useLocale } from "../../lib/i18n/useLocale";
 
 type Props = {
   place: number;
@@ -23,6 +26,8 @@ function rankBadgeClass(place: number, isMe: boolean): string {
 }
 
 export function LeaderboardRow({ place, entry, isMe, onClick, embedded = true }: Props) {
+  const { locale } = useLocale();
+  const labels = getSharedLabels(locale);
   return (
     <motion.button
       type="button"
@@ -60,12 +65,12 @@ export function LeaderboardRow({ place, entry, isMe, onClick, embedded = true }:
       <div className="min-w-0 flex-1">
         <p className="truncate font-[family-name:var(--font-display)] text-[15px] font-bold leading-tight">
           {entry.displayName}
-          {isMe ? " · 你" : ""}
+          {isMe ? labels.youSuffix : ""}
         </p>
         <p className={`truncate text-[11px] font-extrabold leading-snug ${isMe ? "text-white/85" : "text-[#8a7355]"}`}>
-          <span style={{ color: isMe ? undefined : entry.rankColor }}>{entry.rankTitle}</span>
+          <span style={{ color: isMe ? undefined : entry.rankColor }}>{localizedRankName(entry.rankTitle, locale)}</span>
           {" · "}
-          {entry.grade}年级
+          {localizedGrade(entry.grade as 1 | 2 | 3 | 4 | 5 | 6, locale)}
         </p>
         <p className={`truncate text-[10px] font-bold leading-snug ${isMe ? "text-white/70" : "text-[#a08968]"}`}>
           {entry.school}

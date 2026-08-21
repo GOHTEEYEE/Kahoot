@@ -427,10 +427,17 @@ function chineseExplain(input: ExplainRequest, chosen: string, isCorrect: boolea
   return null;
 }
 
+function unansweredLabel(lang?: ExplainRequest["language"]): string {
+  if (lang === "en") return "No answer (timed out)";
+  if (lang === "ms") return "Tiada jawapan (masa tamat)";
+  return "没有作答（超时）";
+}
+
 export function localExplain(input: ExplainRequest): string {
+  const lang = input.language ?? "zh";
   const correct = input.options[input.correctIndex] ?? "";
   const chosen =
-    input.playerChoice == null ? "没有作答（超时）" : (input.options[input.playerChoice] ?? "");
+    input.playerChoice == null ? unansweredLabel(lang) : (input.options[input.playerChoice] ?? "");
   const isCorrect = input.playerChoice === input.correctIndex;
 
   const chinese = input.subject === "chinese" ? chineseExplain(input, chosen, isCorrect) : null;
@@ -439,16 +446,30 @@ export function localExplain(input: ExplainRequest): string {
   if (isCorrect) {
     if (input.subject === "math") {
       const steps = mathSteps(input.prompt, correct);
-      return [
-        `✅ 答对了！我们一起来回顾一下：`,
-        ...steps,
-      ].join("\n");
+      const intro =
+        lang === "en"
+          ? "✅ Correct! Let's review the steps:"
+          : lang === "ms"
+            ? "✅ Betul! Jom semak langkah:"
+            : "✅ 答对了！我们一起来回顾一下：";
+      return [intro, ...steps].join("\n");
+    }
+    if (lang === "en") {
+      return `✅ Correct! The answer is "${correct}". Read the question again to lock it in.`;
+    }
+    if (lang === "ms") {
+      return `✅ Betul! Jawapan ialah "${correct}". Baca semula soalan untuk kukuhkan.`;
     }
     return `✅ 答对了！正确答案是「${correct}」。再读一遍题目，巩固一下为什么选这个。`;
   }
 
   // Wrong answer
-  const header = `❌ 你选了「${chosen}」，正确答案是「${correct}」。\n题目：「${input.prompt}」\n`;
+  const header =
+    lang === "en"
+      ? `❌ You chose "${chosen}". Correct answer: "${correct}".\nQuestion: "${input.prompt}"\n`
+      : lang === "ms"
+        ? `❌ Anda pilih "${chosen}". Jawapan betul: "${correct}".\nSoalan: "${input.prompt}"\n`
+        : `❌ 你选了「${chosen}」，正确答案是「${correct}」。\n题目：「${input.prompt}」\n`;
 
   if (input.subject === "math") {
     const steps = mathSteps(input.prompt, correct);

@@ -17,11 +17,15 @@ import { buildProfileSnapshot, type SubjectProgressRow } from "../lib/profile";
 import type { StudentAccount } from "../lib/account";
 import { getCurrentAccount, saveSelectedSubject, updateStudentProfile } from "../lib/storage";
 import { playSfx } from "../lib/audio/sfx";
+import { getSharedLabels } from "../lib/i18n/labels";
+import { useLocale } from "../lib/i18n/useLocale";
 
 type StatKey = "trophy" | "power" | "streak" | "challenges";
 
 export function ProfileClient() {
   const router = useRouter();
+  const { locale } = useLocale();
+  const labels = getSharedLabels(locale);
   const [account, setAccount] = useState<StudentAccount | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
@@ -43,7 +47,10 @@ export function ProfileClient() {
     refresh();
   }, [refresh]);
 
-  const profile = useMemo(() => (account ? buildProfileSnapshot(account) : null), [account]);
+  const profile = useMemo(
+    () => (account ? buildProfileSnapshot(account, locale) : null),
+    [account, locale],
+  );
 
   const persistAvatar = (src: string) => {
     if (!account) return;
@@ -72,7 +79,7 @@ export function ProfileClient() {
 
   if (!account || !profile) {
     return (
-      <div className="flex flex-1 items-center justify-center text-[#8a7355]">加载中…</div>
+      <div className="flex flex-1 items-center justify-center text-[#8a7355]">{labels.loading}</div>
     );
   }
 

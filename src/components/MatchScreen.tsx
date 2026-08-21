@@ -2,6 +2,8 @@
 
 import type { BotOpponent } from "../lib/bot";
 import { GameIcon } from "./home/GameIcon";
+import { getPlayCopy } from "../lib/i18n/play";
+import { useLocale } from "../lib/i18n/useLocale";
 
 type MatchPlayer = {
   nickname: string;
@@ -17,6 +19,8 @@ type Props = {
 };
 
 export function MatchScreen({ player, opponent, searching, topic, kind = "arena" }: Props) {
+  const { locale } = useLocale();
+  const copy = getPlayCopy(locale);
   const friend = kind === "friend";
   return (
     <section
@@ -25,7 +29,7 @@ export function MatchScreen({ player, opponent, searching, topic, kind = "arena"
       }`}
     >
       <p className="font-[family-name:var(--font-display)] text-sm font-semibold tracking-[0.2em] text-[var(--brand-deep)] uppercase">
-        {searching ? (friend ? "好友对战" : "正在匹配对手") : "对战即将开始"}
+        {searching ? (friend ? copy.friendMatch : copy.matching) : copy.matchStarting}
       </p>
       {topic ? (
         <p className="animate-rise-in rounded-full bg-white/80 px-4 py-2 text-sm font-extrabold text-[var(--ink)] shadow-sm">
@@ -65,11 +69,11 @@ export function MatchScreen({ player, opponent, searching, topic, kind = "arena"
       <p className="max-w-xs text-base text-[var(--ink-soft)]">
         {searching
           ? friend
-            ? "好友正在入场…"
-            : "正在寻找奖杯相近的对手…"
+            ? copy.friendEntering
+            : copy.searchingFoe
           : friend
-            ? "好友已加入！准备开战！"
-            : "对手已找到！准备开战！"}
+            ? copy.friendReady
+            : copy.foeFound}
       </p>
     </section>
   );

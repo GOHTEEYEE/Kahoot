@@ -9,7 +9,6 @@ import { ChallengeShell } from "./ChallengeShell";
 import type { ChallengeResult as Result } from "../../lib/challenge";
 import {
   adventureLocations,
-  adventureWorldTitle,
   markAdventureClear,
   readAdventureClears,
   type AdventureLocation,
@@ -20,11 +19,20 @@ import { getCurrentAccount, getSelectedSubject, getSubjectStats } from "../../li
 import type { StudentAccount } from "../../lib/account";
 import type { SubjectId } from "../../lib/curriculum";
 import { playSfx } from "../../lib/audio/sfx";
+import { getChallengeCopy } from "../../lib/i18n/challenge";
+import { localizedSubject, localizedWorldName } from "../../lib/i18n/home";
+import { getPlayCopy } from "../../lib/i18n/play";
+import { getSharedLabels } from "../../lib/i18n/labels";
+import { useLocale } from "../../lib/i18n/useLocale";
 
 type Phase = "map" | "play" | "result";
 
 export function AdventureMap() {
   const router = useRouter();
+  const { locale } = useLocale();
+  const play = getPlayCopy(locale);
+  const challenge = getChallengeCopy(locale);
+  const labels = getSharedLabels(locale);
   const [account, setAccount] = useState<StudentAccount | null>(null);
   const [subject, setSubject] = useState<SubjectId>("math");
   const [trophies, setTrophies] = useState(0);
@@ -119,7 +127,7 @@ export function AdventureMap() {
   }
 
   if (!account) {
-    return <div className="flex flex-1 items-center justify-center text-[#6b5340]">准备中…</div>;
+    return <div className="flex flex-1 items-center justify-center text-[#6b5340]">{labels.preparing}</div>;
   }
 
   const locations = adventureLocations(subject);
@@ -127,10 +135,10 @@ export function AdventureMap() {
 
   if (phase === "result" && result && loc) {
     return (
-      <ChallengeShell title="Adventure" subtitle={loc.nameEn} backHref="/challenge">
+      <ChallengeShell title={challenge.modes.adventure.title} subtitle={loc.nameEn} backHref="/challenge">
         <ChallengeResult
           title={result.correct >= 3 ? "LOCATION CLEARED" : "KEEP EXPLORING"}
-          extra={loc.name}
+          extra={locale === "zh" ? loc.name : loc.nameEn}
           result={result}
           onAgain={() => enter(loc)}
           onHome={() => boot()}
@@ -141,7 +149,11 @@ export function AdventureMap() {
 
   if (phase === "play" && loc && question) {
     return (
-      <ChallengeShell title={loc.name} subtitle={loc.nameEn} backHref="/challenge">
+      <ChallengeShell
+        title={locale === "zh" ? loc.name : loc.nameEn}
+        subtitle={loc.nameEn}
+        backHref="/challenge"
+      >
         <p className="mb-2 text-center text-[11px] font-extrabold text-[#8a5a18]">
           Q{index + 1}/{deck.length}
         </p>
@@ -166,8 +178,12 @@ export function AdventureMap() {
   }
 
   return (
-    <ChallengeShell title="Adventure" subtitle={adventureWorldTitle(subject)} backHref="/challenge">
-      <p className="mb-3 text-center text-[12px] font-bold text-[#6b5340]">探索地点 · 答对题目解锁奖励</p>
+    <ChallengeShell
+      title={challenge.modes.adventure.title}
+      subtitle={`${localizedSubject(subject, locale)} · ${localizedWorldName(subject, locale)}`}
+      backHref="/challenge"
+    >
+      <p className="mb-3 text-center text-[12px] font-bold text-[#6b5340]">{play.adventureHint}</p>
       <div className="flex flex-col gap-2.5">
         {locations.map((location) => {
           const locked = trophies < location.unlockedAtTrophy;

@@ -3,6 +3,8 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion";
+import { getPlayCopy } from "../../lib/i18n/play";
+import { useLocale } from "../../lib/i18n/useLocale";
 
 type Props = {
   name: string;
@@ -12,13 +14,15 @@ type Props = {
 
 export function FloatingMascot({ name, emoji, accent }: Props) {
   const reduced = usePrefersReducedMotion();
+  const { locale } = useLocale();
+  const play = getPlayCopy(locale);
   const [reacting, setReacting] = useState(false);
   const [bubble, setBubble] = useState<string | null>(null);
 
   function react() {
     if (reacting || reduced) return;
     setReacting(true);
-    setBubble("准备好挑战了吗？");
+    setBubble(play.mascotReady);
     window.setTimeout(() => setBubble(null), 1800);
     window.setTimeout(() => setReacting(false), 1100);
   }

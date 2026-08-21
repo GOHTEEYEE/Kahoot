@@ -11,11 +11,18 @@ import {
   getSelectedSubject,
   getSubjectStats,
 } from "../lib/storage";
-import { TROPHY_ROAD, getSubjectWorld } from "../lib/worlds";
+import { TROPHY_ROAD } from "../lib/worlds";
 import type { SubjectId } from "../lib/curriculum";
+import { getPlayCopy } from "../lib/i18n/play";
+import { getSharedLabels } from "../lib/i18n/labels";
+import { localizedWorldName } from "../lib/i18n/home";
+import { useLocale } from "../lib/i18n/useLocale";
 
 export function RewardsClient() {
   const router = useRouter();
+  const { locale } = useLocale();
+  const play = getPlayCopy(locale);
+  const labels = getSharedLabels(locale);
   const [ready, setReady] = useState(false);
   const [subject, setSubject] = useState<SubjectId>("math");
   const [trophies, setTrophies] = useState(0);
@@ -34,11 +41,9 @@ export function RewardsClient() {
 
   if (!ready) {
     return (
-      <div className="flex flex-1 items-center justify-center text-[var(--ink-soft)]">加载中…</div>
+      <div className="flex flex-1 items-center justify-center text-[var(--ink-soft)]">{labels.loading}</div>
     );
   }
-
-  const world = getSubjectWorld(subject);
 
   return (
     <div className="mx-auto flex w-full max-w-lg flex-1 flex-col px-4 pb-28 pt-6">
@@ -47,10 +52,10 @@ export function RewardsClient() {
           Trophy Road
         </p>
         <h1 className="mt-1 font-[family-name:var(--font-display)] text-3xl font-bold text-[var(--ink)]">
-          奖杯之路
+          {play.trophyRoad}
         </h1>
         <p className="mt-1 flex items-center justify-center gap-1 text-sm font-bold text-[var(--ink-soft)]">
-          {world.worldName} · 当前
+          {localizedWorldName(subject, locale)} · {play.current}
           <GameIcon name="trophy" size="utility" />
           {trophies}
         </p>
@@ -85,10 +90,10 @@ export function RewardsClient() {
                   {reward.trophies} Trophy
                 </p>
                 <p className="font-[family-name:var(--font-display)] text-lg font-bold">
-                  {reward.title}
+                  {play.trophyRoadItems[reward.trophies]?.title ?? reward.title}
                 </p>
                 <p className={`text-sm font-bold ${unlocked ? "text-white/85" : "text-[var(--ink-soft)]"}`}>
-                  {reward.detail}
+                  {play.trophyRoadItems[reward.trophies]?.detail ?? reward.detail}
                 </p>
               </div>
             </motion.li>
@@ -100,7 +105,7 @@ export function RewardsClient() {
         href="/"
         className="mt-6 text-center text-sm font-extrabold text-[var(--brand-deep)]"
       >
-        返回 Home
+        {play.backHomeShort}
       </Link>
       <BottomNavigation />
     </div>

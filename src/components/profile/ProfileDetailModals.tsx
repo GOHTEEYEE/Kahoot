@@ -3,9 +3,13 @@
 import { GameModal } from "../game-ui/GameModal";
 import type { AchievementView } from "../../lib/achievements";
 import type { DayActivity } from "../../lib/learningLog";
-import { subjectLabel } from "../../lib/curriculum";
 import type { ProfileSnapshot, SubjectProgressRow } from "../../lib/profile";
 import { subjectTrophyHistory } from "../../lib/profile";
+import { getWorldStage } from "../../lib/worlds";
+import { localizedSubject } from "../../lib/i18n/home";
+import { getSharedLabels, localizedWeekday, localizedWorldStageName } from "../../lib/i18n/labels";
+import { getProfileCopy } from "../../lib/i18n/profile";
+import { useLocale } from "../../lib/i18n/useLocale";
 
 type StatKey = "trophy" | "power" | "streak" | "challenges" | null;
 
@@ -32,28 +36,29 @@ export function ProfileDetailModals({
   onCloseAchievement,
   onCloseSubjects,
 }: Props) {
-  const trophyRows = subjectTrophyHistory(profile.account);
+  const { locale } = useLocale();
+  const copy = getProfileCopy(locale);
+  const labels = getSharedLabels(locale);
+  const trophyRows = subjectTrophyHistory(profile.account, locale);
 
   return (
     <>
       <GameModal
         open={stat === "trophy"}
-        title="奖杯"
-        subtitle={`总计 ${profile.trophies}`}
+        title={copy.trophyModalTitle}
+        subtitle={copy.total(profile.trophies)}
         onClose={onCloseStat}
       >
-        <p className="mb-3 text-[12px] font-bold text-[#6b5340]">
-          奖杯来自各科目擂台对战与挑战奖励。
-        </p>
+        <p className="mb-3 text-[12px] font-bold text-[#6b5340]">{copy.trophyHint}</p>
         <ul className="space-y-2">
           {trophyRows.map((r) => (
             <li
               key={r.id}
               className="flex items-center justify-between rounded-xl bg-white/70 px-3 py-2 ring-1 ring-[#e8c98a]/45"
             >
-              <span className="text-sm font-extrabold text-[#3d2f1e]">{r.name}</span>
+              <span className="text-sm font-extrabold text-[#3d2f1e]">{localizedSubject(r.id, locale)}</span>
               <span className="text-xs font-bold tabular-nums text-[#8a5a18]">
-                {r.trophies} 杯 · {r.wins} 胜
+                {copy.cupsWins(r.trophies, r.wins)}
               </span>
             </li>
           ))}
@@ -62,31 +67,31 @@ export function ProfileDetailModals({
 
       <GameModal
         open={stat === "power"}
-        title="学习战力"
-        subtitle={`总计 ${profile.learningPower.total}`}
+        title={copy.powerTitle}
+        subtitle={copy.total(profile.learningPower.total)}
         onClose={onCloseStat}
       >
-        <p className="mb-3 text-[12px] font-bold text-[#6b5340]">
-          战力 = 各科能力分 + 挑战加成 + 成就加成
-        </p>
+        <p className="mb-3 text-[12px] font-bold text-[#6b5340]">{copy.powerHint}</p>
         <ul className="space-y-2">
           {profile.learningPower.bySubject.map((r) => (
             <li
               key={r.id}
               className="flex items-center justify-between rounded-xl bg-white/70 px-3 py-2 ring-1 ring-[#e8c98a]/45"
             >
-              <span className="text-sm font-extrabold text-[#3d2f1e]">{r.name}能力</span>
+              <span className="text-sm font-extrabold text-[#3d2f1e]">
+                {copy.abilityOf(localizedSubject(r.id, locale))}
+              </span>
               <span className="text-xs font-bold tabular-nums text-[#2f9e6e]">+{r.points}</span>
             </li>
           ))}
           <li className="flex items-center justify-between rounded-xl bg-white/70 px-3 py-2 ring-1 ring-[#e8c98a]/45">
-            <span className="text-sm font-extrabold text-[#3d2f1e]">挑战完成</span>
+            <span className="text-sm font-extrabold text-[#3d2f1e]">{copy.challengeDone}</span>
             <span className="text-xs font-bold tabular-nums text-[#2f9e6e]">
               +{profile.learningPower.challengeBonus}
             </span>
           </li>
           <li className="flex items-center justify-between rounded-xl bg-white/70 px-3 py-2 ring-1 ring-[#e8c98a]/45">
-            <span className="text-sm font-extrabold text-[#3d2f1e]">成就</span>
+            <span className="text-sm font-extrabold text-[#3d2f1e]">{copy.achievement}</span>
             <span className="text-xs font-bold tabular-nums text-[#2f9e6e]">
               +{profile.learningPower.achievementBonus}
             </span>
@@ -96,24 +101,24 @@ export function ProfileDetailModals({
 
       <GameModal
         open={stat === "streak"}
-        title="连续学习"
-        subtitle={`当前 ${profile.streak.current} 天`}
+        title={copy.streakTitle}
+        subtitle={copy.currentDays(profile.streak.current)}
         onClose={onCloseStat}
       >
         <div className="space-y-3 text-sm font-bold text-[#3d2f1e]">
           <p>
-            当前连续：
-            <span className="text-[#c45c26]"> {profile.streak.current} 天</span>
+            {copy.currentStreak}
+            <span className="text-[#c45c26]"> {labels.days(profile.streak.current)}</span>
           </p>
           <p>
-            最长连续：
-            <span className="text-[#8a5a18]"> {profile.streak.longest} 天</span>
+            {copy.longestStreak}
+            <span className="text-[#8a5a18]"> {labels.days(profile.streak.longest)}</span>
           </p>
-          <p className="text-[12px] text-[#6b5340]">最近学习日：</p>
+          <p className="text-[12px] text-[#6b5340]">{copy.recentDays}</p>
           <ul className="grid grid-cols-7 gap-1.5">
             {profile.weekDays.map((d) => (
               <li key={d.date} className="text-center">
-                <p className="text-[9px] font-extrabold text-[#8a5a18]">{d.label}</p>
+                <p className="text-[9px] font-extrabold text-[#8a5a18]">{localizedWeekday(d.weekday, locale)}</p>
                 <p
                   className={`mx-auto mt-1 flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-black ${
                     d.completed ? "bg-[#65c84a] text-white" : "bg-[#efe4c8] text-[#b8a078]"
@@ -129,22 +134,19 @@ export function ProfileDetailModals({
 
       <GameModal
         open={stat === "challenges"}
-        title="挑战历史"
-        subtitle={`累计 ${profile.completedChallenges} 次`}
+        title={copy.challengeHistory}
+        subtitle={copy.totalTimes(profile.completedChallenges)}
         onClose={onCloseStat}
       >
         <ul className="space-y-2">
           {profile.subjects.map((s) => (
-            <li
-              key={s.id}
-              className="rounded-xl bg-white/70 px-3 py-2 ring-1 ring-[#e8c98a]/45"
-            >
+            <li key={s.id} className="rounded-xl bg-white/70 px-3 py-2 ring-1 ring-[#e8c98a]/45">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-extrabold text-[#3d2f1e]">{s.name}</span>
-                <span className="text-xs font-bold text-[#8a5a18]">{s.games} 次</span>
+                <span className="text-sm font-extrabold text-[#3d2f1e]">{localizedSubject(s.id, locale)}</span>
+                <span className="text-xs font-bold text-[#8a5a18]">{copy.times(s.games)}</span>
               </div>
               <p className="mt-0.5 text-[11px] font-bold text-[#6b5340]">
-                胜 {s.wins} · 奖杯 {s.trophies} · 掌握度 {s.mastery}%
+                {copy.winsTrophiesMastery(s.wins, s.trophies, s.mastery)}
               </p>
             </li>
           ))}
@@ -153,18 +155,18 @@ export function ProfileDetailModals({
 
       <GameModal
         open={!!day}
-        title={day?.date ?? "学习详情"}
-        subtitle={day?.completed ? "已完成学习" : "这一天还没有学习记录"}
+        title={day?.date ?? copy.dayDetail}
+        subtitle={day?.completed ? copy.dayDone : copy.dayEmpty}
         onClose={onCloseDay}
       >
         {day ? (
           day.completed ? (
             <div className="space-y-2 text-sm font-bold text-[#3d2f1e]">
-              <p>完成挑战：</p>
+              <p>{copy.completedChallenges}</p>
               <ul className="space-y-1">
                 {Object.entries(day.bySubject).map(([id, n]) => (
                   <li key={id} className="flex justify-between rounded-lg bg-white/70 px-3 py-1.5">
-                    <span>{subjectLabel(id as SubjectProgressRow["id"])}</span>
+                    <span>{localizedSubject(id as SubjectProgressRow["id"], locale)}</span>
                     <span>× {n}</span>
                   </li>
                 ))}
@@ -177,28 +179,28 @@ export function ProfileDetailModals({
               </p>
             </div>
           ) : (
-            <p className="text-sm font-bold text-[#8a7355]">去擂台或挑战页完成一次学习吧！</p>
+            <p className="text-sm font-bold text-[#8a7355]">{copy.goLearn}</p>
           )
         ) : null}
       </GameModal>
 
       <GameModal
         open={!!achievement}
-        title={achievement?.name ?? "成就"}
-        subtitle={achievement?.unlocked ? "已完成" : "未解锁"}
+        title={achievement?.name ?? copy.achievementFallback}
+        subtitle={achievement?.unlocked ? copy.completed : copy.locked}
         onClose={onCloseAchievement}
       >
         {achievement ? (
           <div className="space-y-2 text-sm font-bold text-[#3d2f1e]">
             <p className="text-[#6b5340]">{achievement.description}</p>
             <p>
-              条件：<span className="text-[#8a5a18]">{achievement.condition}</span>
+              {copy.condition}：<span className="text-[#8a5a18]">{achievement.condition}</span>
             </p>
             <p>
-              进度：{achievement.progressLabel}（{achievement.progress}%）
+              {copy.progress}：{achievement.progressLabel}（{achievement.progress}%）
             </p>
             <p>
-              状态：{achievement.unlocked ? "已完成" : "进行中"}
+              {copy.status}：{achievement.unlocked ? copy.completed : copy.inProgress}
               {achievement.unlockedAt ? ` · ${achievement.unlockedAt}` : ""}
             </p>
           </div>
@@ -207,32 +209,35 @@ export function ProfileDetailModals({
 
       <GameModal
         open={subjectsOpen}
-        title="科目详情"
-        subtitle="能力 · 关卡 · 解锁"
+        title={copy.subjectDetails}
+        subtitle={copy.subjectDetailsSub}
         onClose={onCloseSubjects}
       >
         <ul className="space-y-2">
-          {profile.subjects.map((s) => (
-            <li key={s.id} className="rounded-xl bg-white/70 px-3 py-2.5 ring-1 ring-[#e8c98a]/45">
-              <div className="flex items-center justify-between">
-                <span className="font-[family-name:var(--font-display)] text-base font-bold text-[#3d2f1e]">
-                  {s.name}
-                </span>
-                <span className="text-xs font-extrabold text-[#8a5a18]">Lv.{s.level}</span>
-              </div>
-              <p className="mt-1 text-[11px] font-bold text-[#6b5340]">
-                掌握度 {s.mastery}% · 奖杯 {s.trophies} · 挑战 {s.games}
-              </p>
-              <p className="mt-0.5 text-[11px] font-bold text-[#2f9e6e]">当前 Arena：{s.arenaName}</p>
-              {s.toNextLevelTrophies != null && s.nextLevel != null ? (
-                <p className="mt-0.5 text-[11px] font-bold text-[#8a5a18]">
-                  下一关 Lv.{s.nextLevel}：再获得 {s.toNextLevelTrophies} 奖杯
+          {profile.subjects.map((s) => {
+            const arena = localizedWorldStageName(getWorldStage(s.trophies).id, locale);
+            return (
+              <li key={s.id} className="rounded-xl bg-white/70 px-3 py-2.5 ring-1 ring-[#e8c98a]/45">
+                <div className="flex items-center justify-between">
+                  <span className="font-[family-name:var(--font-display)] text-base font-bold text-[#3d2f1e]">
+                    {localizedSubject(s.id, locale)}
+                  </span>
+                  <span className="text-xs font-extrabold text-[#8a5a18]">Lv.{s.level}</span>
+                </div>
+                <p className="mt-1 text-[11px] font-bold text-[#6b5340]">
+                  {copy.masteryTrophiesChallenges(s.mastery, s.trophies, s.games)}
                 </p>
-              ) : (
-                <p className="mt-0.5 text-[11px] font-bold text-[#8a7355]">已达最高世界关卡</p>
-              )}
-            </li>
-          ))}
+                <p className="mt-0.5 text-[11px] font-bold text-[#2f9e6e]">{copy.currentArena(arena)}</p>
+                {s.toNextLevelTrophies != null && s.nextLevel != null ? (
+                  <p className="mt-0.5 text-[11px] font-bold text-[#8a5a18]">
+                    {copy.nextLevelTrophies(s.nextLevel, s.toNextLevelTrophies)}
+                  </p>
+                ) : (
+                  <p className="mt-0.5 text-[11px] font-bold text-[#8a7355]">{copy.maxWorld}</p>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </GameModal>
     </>

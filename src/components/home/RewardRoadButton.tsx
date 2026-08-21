@@ -3,12 +3,16 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { GameIcon } from "./GameIcon";
+import { getPlayCopy } from "../../lib/i18n/play";
+import { useLocale } from "../../lib/i18n/useLocale";
 
 type Props = {
   lockedCount?: number;
 };
 
 export function RewardRoadButton({ lockedCount = 0 }: Props) {
+  const { locale } = useLocale();
+  const play = getPlayCopy(locale);
   return (
     <Link href="/rewards" className="block w-full">
       <motion.div
@@ -20,7 +24,7 @@ export function RewardRoadButton({ lockedCount = 0 }: Props) {
             Trophy Road
           </p>
           <p className="font-[family-name:var(--font-display)] text-base font-bold">
-            打开奖杯之路
+            {play.trophyRoadOpen}
           </p>
         </div>
         <div className="flex items-center gap-2">

@@ -5,6 +5,8 @@ import type { AchievementView } from "../../lib/achievements";
 import type { ProfileSnapshot } from "../../lib/profile";
 import { GameIcon } from "../home/GameIcon";
 import { playSfx } from "../../lib/audio/sfx";
+import { getProfileCopy } from "../../lib/i18n/profile";
+import { useLocale } from "../../lib/i18n/useLocale";
 
 type Props = {
   profile: ProfileSnapshot;
@@ -26,16 +28,18 @@ function AchievementGlyph({ achievement }: { achievement: AchievementView }) {
 }
 
 export function AchievementSection({ profile, onOpen }: Props) {
+  const { locale } = useLocale();
+  const copy = getProfileCopy(locale);
   const preview = profile.achievements.slice(0, 5);
 
   return (
     <section className="hud-plate mt-3 rounded-[1.5rem] p-4 ring-1 ring-[#f0d9a0]/90">
       <div className="flex items-end justify-between gap-2">
         <h3 className="font-[family-name:var(--font-display)] text-[17px] font-bold text-[#3d2f1e]">
-          我的成就
+          {copy.achievementsTitle}
         </h3>
         <p className="text-[11px] font-extrabold tabular-nums text-[#8a5a18]">
-          已获得 {profile.unlockedCount} / {profile.achievementTotal}
+          {copy.unlockedCount(profile.unlockedCount, profile.achievementTotal)}
         </p>
       </div>
 
@@ -69,7 +73,7 @@ export function AchievementSection({ profile, onOpen }: Props) {
         onClick={() => playSfx("tap")}
         className="mt-3 block w-full text-center text-[12px] font-extrabold text-[#2f9e6e]"
       >
-        查看全部成就 &gt;
+        {copy.viewAllAchievements}
       </Link>
     </section>
   );

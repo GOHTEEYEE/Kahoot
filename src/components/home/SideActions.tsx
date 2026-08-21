@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { playSfx } from "../../lib/audio/sfx";
+import { getHomeCopy } from "../../lib/i18n/home";
+import { useLocale } from "../../lib/i18n/useLocale";
 import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion";
 import { QuickActionCard } from "./QuickActionCard";
 
@@ -16,13 +18,15 @@ type Props = {
 /** Compact quick-action columns framing the island hero. */
 export function SideActions({ onChest, onMission, onEvent, onSeason, onWorld }: Props) {
   const reduced = usePrefersReducedMotion();
+  const { locale } = useLocale();
+  const copy = getHomeCopy(locale);
   const [sparkle, setSparkle] = useState(false);
 
   return (
     <>
       <div className="quick-action-stack quick-action-stack--left">
         <QuickActionCard
-          title="每日宝箱"
+          title={copy.dailyChest}
           meta="3/10"
           icon="chest"
           sparkle={sparkle}
@@ -35,7 +39,7 @@ export function SideActions({ onChest, onMission, onEvent, onSeason, onWorld }: 
           }}
         />
         <QuickActionCard
-          title="每日任务"
+          title={copy.dailyMission}
           meta="4/5"
           icon="mission"
           reduced={reduced}
@@ -46,7 +50,7 @@ export function SideActions({ onChest, onMission, onEvent, onSeason, onWorld }: 
           }}
         />
         <QuickActionCard
-          title="通行证"
+          title={copy.battlePass}
           meta="Lv.12"
           icon="pass"
           reduced={reduced}
@@ -57,7 +61,7 @@ export function SideActions({ onChest, onMission, onEvent, onSeason, onWorld }: 
 
       <div className="quick-action-stack quick-action-stack--right">
         <QuickActionCard
-          title="活动中心"
+          title={copy.events}
           meta="2d 10h"
           icon="event"
           badge
@@ -69,7 +73,7 @@ export function SideActions({ onChest, onMission, onEvent, onSeason, onWorld }: 
           }}
         />
         <QuickActionCard
-          title="赛季"
+          title={copy.season}
           meta="4d 21h"
           icon="trophy"
           reduced={reduced}
@@ -80,7 +84,7 @@ export function SideActions({ onChest, onMission, onEvent, onSeason, onWorld }: 
           }}
         />
         <QuickActionCard
-          title="世界"
+          title={copy.world}
           meta="World"
           icon="map"
           reduced={reduced}

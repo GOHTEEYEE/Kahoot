@@ -17,6 +17,8 @@ import { WorldScene } from "../world/WorldScene";
 import { playSfx } from "../../lib/audio/sfx";
 import { getWorldArtPack } from "../../lib/animation/worldArt";
 import { GameWorldHeader } from "../game-ui/GameWorldHeader";
+import { localizedSubject, localizedWorldName } from "../../lib/i18n/home";
+import { useLocale } from "../../lib/i18n/useLocale";
 
 type Props = {
   subject: SubjectId;
@@ -27,6 +29,7 @@ type Props = {
 };
 
 export function WorldDiorama({ subject, trophies, viewingStage, onIslandClick, children }: Props) {
+  const { locale } = useLocale();
   const reduced = usePrefersReducedMotion();
   const world = getSubjectWorld(subject);
   const artPack = getWorldArtPack(subject);
@@ -48,9 +51,9 @@ export function WorldDiorama({ subject, trophies, viewingStage, onIslandClick, c
     <div className="relative flex min-h-0 w-full flex-1 flex-col items-center justify-start pt-0">
       <GameWorldHeader
         onClick={openMap}
-        subjectName={world.subjectName}
+        subjectName={localizedSubject(subject, locale)}
         subjectLevel={stage.level}
-        worldName={world.worldName}
+        worldName={localizedWorldName(subject, locale)}
         isPreview={Boolean(viewingStage && viewingStage !== earned.id)}
         trophies={trophies}
         trophyCap={trophyCap}

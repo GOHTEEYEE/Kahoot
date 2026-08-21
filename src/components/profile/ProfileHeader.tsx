@@ -3,15 +3,21 @@
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { playSfx } from "../../lib/audio/sfx";
+import { getProfileCopy } from "../../lib/i18n/profile";
+import { getSharedLabels } from "../../lib/i18n/labels";
+import { useLocale } from "../../lib/i18n/useLocale";
 
 export function ProfileHeader() {
   const router = useRouter();
+  const { locale } = useLocale();
+  const copy = getProfileCopy(locale);
+  const labels = getSharedLabels(locale);
 
   return (
     <header className="relative mb-3 flex items-center justify-between gap-2 px-0.5">
       <button
         type="button"
-        aria-label="返回"
+        aria-label={labels.back}
         onClick={() => {
           playSfx("tap");
           if (typeof window !== "undefined" && window.history.length > 1) router.back();
@@ -28,7 +34,7 @@ export function ProfileHeader() {
         className="wood-plaque plaque-glint relative mx-auto inline-flex overflow-hidden rounded-[1.15rem] px-5 py-1.5 ring-1 ring-[#ffe7b4]/80"
       >
         <h1 className="font-[family-name:var(--font-display)] text-[20px] font-bold leading-tight text-[#fff8ea] drop-shadow-[0_2px_0_rgba(90,40,10,0.45)]">
-          我的资料
+          {copy.pageTitle}
         </h1>
       </motion.div>
 

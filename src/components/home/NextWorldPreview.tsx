@@ -6,6 +6,9 @@ import { getNextWorldStage, getWorldStage } from "../../lib/worlds";
 import type { SubjectId } from "../../lib/curriculum";
 import { playSfx } from "../../lib/audio/sfx";
 import { GameIcon } from "./GameIcon";
+import { localizedWorldStageName } from "../../lib/i18n/labels";
+import { getPlayCopy } from "../../lib/i18n/play";
+import { useLocale } from "../../lib/i18n/useLocale";
 
 type Props = {
   subject: SubjectId;
@@ -15,6 +18,8 @@ type Props = {
 };
 
 export function NextWorldPreview({ subject, trophies, onOpenMap, nested = false }: Props) {
+  const { locale } = useLocale();
+  const play = getPlayCopy(locale);
   const next = getNextWorldStage(trophies);
   const shell = nested
     ? "flex w-full items-center gap-2 px-0.5 py-0 text-left"
@@ -25,7 +30,7 @@ export function NextWorldPreview({ subject, trophies, onOpenMap, nested = false 
     return (
       <div className={shell}>
         <p className="min-w-0 flex-1 truncate text-[11px] font-extrabold text-[#ffe7b4]">
-          {current.name} · Max world
+          {localizedWorldStageName(current.id, locale)} · {play.maxWorld}
         </p>
       </div>
     );
@@ -44,7 +49,7 @@ export function NextWorldPreview({ subject, trophies, onOpenMap, nested = false 
         onOpenMap();
       }}
       className={shell}
-      aria-label={`下一世界 ${next.name}`}
+      aria-label={play.nextWorldAria(localizedWorldStageName(next.id, locale))}
     >
       <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-[0.65rem] bg-[#cfe4f4]/70 ring-1 ring-white/25">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -60,7 +65,7 @@ export function NextWorldPreview({ subject, trophies, onOpenMap, nested = false 
           NEXT WORLD
         </span>
         <span className="block truncate font-[family-name:var(--font-display)] text-[14px] font-bold leading-tight text-[#fff6e4]">
-          {next.name}
+          {localizedWorldStageName(next.id, locale)}
         </span>
       </span>
       <span className="shrink-0 text-right">
@@ -68,7 +73,7 @@ export function NextWorldPreview({ subject, trophies, onOpenMap, nested = false 
           <GameIcon name="trophy" size="utility" />
           {next.minTrophies}
         </span>
-        <span className="block text-[8px] font-bold text-white/55">还差 {remain}</span>
+        <span className="block text-[8px] font-bold text-white/55">{play.needMore(remain)}</span>
       </span>
     </motion.button>
   );

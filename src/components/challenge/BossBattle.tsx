@@ -23,11 +23,20 @@ import type { StudentAccount } from "../../lib/account";
 import type { Grade, SubjectId } from "../../lib/curriculum";
 import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion";
 import { playSfx } from "../../lib/audio/sfx";
+import { getChallengeCopy } from "../../lib/i18n/challenge";
+import { localizedGrade } from "../../lib/i18n/home";
+import { getPlayCopy } from "../../lib/i18n/play";
+import { getSharedLabels } from "../../lib/i18n/labels";
+import { useLocale } from "../../lib/i18n/useLocale";
 
 type Phase = "play" | "result";
 
 export function BossBattle() {
   const router = useRouter();
+  const { locale } = useLocale();
+  const play = getPlayCopy(locale);
+  const challenge = getChallengeCopy(locale);
+  const labels = getSharedLabels(locale);
   const reduced = usePrefersReducedMotion();
   const [account, setAccount] = useState<StudentAccount | null>(null);
   const [subject, setSubject] = useState<SubjectId>("math");
@@ -170,16 +179,16 @@ export function BossBattle() {
   }
 
   if (!account || !boss || !question) {
-    return <div className="flex flex-1 items-center justify-center text-[#6b5340]">准备中…</div>;
+    return <div className="flex flex-1 items-center justify-center text-[#6b5340]">{labels.preparing}</div>;
   }
 
   if (phase === "result" && result) {
     const win = hp <= 0;
     return (
-      <ChallengeShell title="Boss Challenge" subtitle={boss.nameEn} backHref="/challenge">
+      <ChallengeShell title={challenge.modes.boss.title} subtitle={locale === "zh" ? boss.name : boss.nameEn} backHref="/challenge">
         <ChallengeResult
           title={win ? "BOSS DEFEATED" : "RETRY THE BOSS"}
-          extra={win ? `${boss.name} 倒下了！` : "再练一练就能赢"}
+          extra={win ? play.bossDown(locale === "zh" ? boss.name : boss.nameEn) : play.bossRetry}
           result={result}
           onAgain={boot}
           onHome={() => router.push("/challenge")}
@@ -189,7 +198,7 @@ export function BossBattle() {
   }
 
   return (
-    <ChallengeShell title="Boss Challenge" subtitle={boss.nameEn} backHref="/challenge">
+    <ChallengeShell title={challenge.modes.boss.title} subtitle={locale === "zh" ? boss.name : boss.nameEn} backHref="/challenge">
       <motion.div
         animate={shake && !reduced ? { x: [0, -8, 8, -5, 5, 0] } : { x: 0 }}
         className="hud-dark rounded-[1.25rem] px-3 py-3"
@@ -198,7 +207,7 @@ export function BossBattle() {
           Boss
         </p>
         <h2 className="text-center font-[family-name:var(--font-display)] text-[22px] font-bold text-[#fff6e4]">
-          {boss.name}
+          {boss ? (locale === "zh" ? boss.name : boss.nameEn) : ""}
         </h2>
         <div className="mt-2">
           <BossHealthBar current={hp} max={boss.maxHp} />
@@ -210,7 +219,7 @@ export function BossBattle() {
       </motion.div>
 
       <p className="mt-2 text-center text-[11px] font-extrabold text-[#8a5a18]">
-        Q{index + 1}/{deck.length} · {grade}年级
+        Q{index + 1}/{deck.length} · {localizedGrade(grade, locale)}
       </p>
       <TimerBar remainingMs={qMs} totalMs={QUESTION_TIME_MS} />
 

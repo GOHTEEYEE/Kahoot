@@ -9,3 +9,8 @@ export const LOCALES: { id: AppLocale; label: string }[] = [
 export function isAppLocale(v: string): v is AppLocale {
   return v === "en" || v === "zh" || v === "ms";
 }
+
+/** UI labels that only have zh + en sources (ms uses English). */
+export function pickLocalized(zh: string, en: string, locale: AppLocale): string {
+  return locale === "zh" ? zh : en;
+}

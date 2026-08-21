@@ -2,9 +2,12 @@
 
 import type { ReactNode } from "react";
 import { GameModal } from "../game-ui/GameModal";
-import type { LeaderboardEntry } from "../../lib/leaderboard";
-import { subjectLabel, type RankingSubjectFilter } from "../../lib/leaderboard";
+import type { LeaderboardEntry, RankingSubjectFilter } from "../../lib/leaderboard";
 import { GameIcon } from "../home/GameIcon";
+import { localizedGrade } from "../../lib/i18n/home";
+import { getLeaderboardCopy, rankingSubjectLabel } from "../../lib/i18n/leaderboard";
+import { getSharedLabels, localizedRankName } from "../../lib/i18n/labels";
+import { useLocale } from "../../lib/i18n/useLocale";
 
 type Props = {
   open: boolean;
@@ -16,13 +19,16 @@ type Props = {
 };
 
 export function PlayerMiniProfileModal({ open, onClose, player, place, subject, isMe }: Props) {
+  const { locale } = useLocale();
+  const copy = getLeaderboardCopy(locale);
+  const labels = getSharedLabels(locale);
   if (!player) return null;
 
   return (
     <GameModal
       open={open}
-      title={isMe ? `${player.displayName} · 你` : player.displayName}
-      subtitle="选手资料 · Profile"
+      title={isMe ? `${player.displayName}${labels.youSuffix}` : player.displayName}
+      subtitle={copy.playerProfile}
       onClose={onClose}
     >
       <div className="flex flex-col items-center gap-3 text-center">
@@ -38,17 +44,17 @@ export function PlayerMiniProfileModal({ open, onClose, player, place, subject, 
         <div>
           <p className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#3d2f1e]">
             {player.displayName}
-            {isMe ? " · 你" : ""}
+            {isMe ? labels.youSuffix : ""}
           </p>
           <p className="mt-1 text-sm font-extrabold text-[#8a5a18]">
-            {player.grade}年级 · {player.school}
+            {localizedGrade(player.grade as 1 | 2 | 3 | 4 | 5 | 6, locale)} · {player.school}
           </p>
         </div>
         <div className="grid w-full grid-cols-2 gap-2">
-          <Stat label="当前科目" value={subjectLabel(subject)} />
-          <Stat label="排名" value={`#${place}`} />
+          <Stat label={copy.currentSubject} value={rankingSubjectLabel(subject, locale)} />
+          <Stat label={copy.rank} value={`#${place}`} />
           <Stat
-            label="奖杯"
+            label={copy.trophies}
             value={
               <span className="inline-flex items-center justify-center gap-1">
                 <GameIcon name="trophy" size="utility" className="h-5 w-5" />
@@ -56,11 +62,9 @@ export function PlayerMiniProfileModal({ open, onClose, player, place, subject, 
               </span>
             }
           />
-          <Stat label="段位" value={player.rankTitle} />
+          <Stat label={copy.rankTitle} value={localizedRankName(player.rankTitle, locale)} />
         </div>
-        <p className="text-xs font-bold text-[#8a7355]">
-          战绩 {player.wins} 胜 · {player.losses} 负
-        </p>
+        <p className="text-xs font-bold text-[#8a7355]">{copy.record(player.wins, player.losses)}</p>
       </div>
     </GameModal>
   );

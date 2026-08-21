@@ -10,6 +10,9 @@ import { evaluateAchievements, type AchievementView } from "../lib/achievements"
 import type { StudentAccount } from "../lib/account";
 import { getCurrentAccount } from "../lib/storage";
 import { playSfx } from "../lib/audio/sfx";
+import { getProfileCopy } from "../lib/i18n/profile";
+import { getSharedLabels } from "../lib/i18n/labels";
+import { useLocale } from "../lib/i18n/useLocale";
 
 function Glyph({ achievement }: { achievement: AchievementView }) {
   const map = {
@@ -27,6 +30,9 @@ function Glyph({ achievement }: { achievement: AchievementView }) {
 
 export function AchievementsClient() {
   const router = useRouter();
+  const { locale } = useLocale();
+  const copy = getProfileCopy(locale);
+  const labels = getSharedLabels(locale);
   const [account, setAccount] = useState<StudentAccount | null>(null);
   const [selected, setSelected] = useState<AchievementView | null>(null);
 
@@ -39,12 +45,15 @@ export function AchievementsClient() {
     setAccount(current);
   }, [router]);
 
-  const list = useMemo(() => (account ? evaluateAchievements(account) : []), [account]);
+  const list = useMemo(
+    () => (account ? evaluateAchievements(account, locale) : []),
+    [account, locale],
+  );
   const unlocked = list.filter((a) => a.unlocked).length;
 
   if (!account) {
     return (
-      <div className="flex flex-1 items-center justify-center text-[#8a7355]">加载中…</div>
+      <div className="flex flex-1 items-center justify-center text-[#8a7355]">{labels.loading}</div>
     );
   }
 
@@ -55,20 +64,20 @@ export function AchievementsClient() {
           href="/profile"
           onClick={() => playSfx("tap")}
           className="flex h-10 w-10 items-center justify-center rounded-full bg-[#fff8ea] text-lg font-black text-[#5a3a18] ring-1 ring-[#e8c98a]/70"
-          aria-label="返回资料"
+          aria-label={copy.backToProfile}
         >
           ←
         </Link>
         <div className="wood-plaque flex-1 rounded-[1.15rem] px-4 py-1.5 text-center">
           <h1 className="font-[family-name:var(--font-display)] text-[18px] font-bold text-[#fff8ea]">
-            全部成就
+            {copy.allAchievements}
           </h1>
         </div>
         <span className="w-10" />
       </header>
 
       <p className="mb-3 text-center text-[12px] font-extrabold text-[#8a5a18]">
-        已获得 {unlocked} / {list.length}
+        {copy.unlockedCount(unlocked, list.length)}
       </p>
 
       <ul className="grid grid-cols-2 gap-2.5">
@@ -94,19 +103,21 @@ export function AchievementsClient() {
 
       <GameModal
         open={!!selected}
-        title={selected?.name ?? "成就"}
-        subtitle={selected?.unlocked ? "已完成" : "未解锁"}
+        title={selected?.name ?? copy.achievementFallback}
+        subtitle={selected?.unlocked ? copy.completed : copy.locked}
         onClose={() => setSelected(null)}
       >
         {selected ? (
           <div className="space-y-2 text-sm font-bold text-[#3d2f1e]">
             <p className="text-[#6b5340]">{selected.description}</p>
-            <p>条件：{selected.condition}</p>
             <p>
-              进度：{selected.progressLabel}（{selected.progress}%）
+              {copy.condition}：{selected.condition}
             </p>
             <p>
-              状态：{selected.unlocked ? "已完成" : "进行中"}
+              {copy.progress}：{selected.progressLabel}（{selected.progress}%）
+            </p>
+            <p>
+              {copy.status}：{selected.unlocked ? copy.completed : copy.inProgress}
               {selected.unlockedAt ? ` · ${selected.unlockedAt}` : ""}
             </p>
           </div>

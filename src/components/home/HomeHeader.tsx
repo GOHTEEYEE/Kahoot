@@ -2,9 +2,11 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { gradeLabel, type Grade } from "../../lib/curriculum";
+import type { Grade } from "../../lib/curriculum";
 import { isSfxMuted, playSfx, setSfxMuted } from "../../lib/audio/sfx";
 import { useSfxMuted } from "../../lib/audio/useSfxMuted";
+import { getHomeCopy, localizedGrade } from "../../lib/i18n/home";
+import { useLocale } from "../../lib/i18n/useLocale";
 import { GameIcon } from "./GameIcon";
 import { GameResource } from "../game-ui/GameResource";
 import { GameHUDButton } from "../game-ui/GameHUDButton";
@@ -33,6 +35,8 @@ export function HomeHeader({
   onMail,
 }: Props) {
   const muted = useSfxMuted();
+  const { locale } = useLocale();
+  const copy = getHomeCopy(locale);
   const xpNow = xpLevel * 250 + xpProgress * 8;
   const xpMax = (xpLevel + 1) * 250;
   const xpPct = Math.min(100, Math.round((xpNow / xpMax) * 100));
@@ -60,7 +64,7 @@ export function HomeHeader({
               {name}
             </p>
             <p className="mt-0.5 text-[9.5px] font-extrabold leading-none tracking-wide text-[#6b5340]">
-              {gradeLabel(grade)} · Lv.{xpLevel}
+              {localizedGrade(grade, locale)} · Lv.{xpLevel}
             </p>
             <div className="mt-1 flex items-center gap-1.5">
               <div className="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-[#3c3425]/14 ring-1 ring-white/45">
@@ -85,7 +89,7 @@ export function HomeHeader({
           </div>
           <div className="flex items-center gap-1">
             <GameHUDButton
-              ariaLabel="邮件"
+              ariaLabel={copy.mail}
               badge="3"
               onClick={() => {
                 playSfx("mail");
@@ -95,7 +99,7 @@ export function HomeHeader({
               <GameIcon name="mail" size="utility" />
             </GameHUDButton>
             <GameHUDButton
-              ariaLabel="通知"
+              ariaLabel={copy.notify}
               badge="2"
               onClick={() => {
                 playSfx("hud");
@@ -105,7 +109,7 @@ export function HomeHeader({
               <GameIcon name="notification" size="utility" />
             </GameHUDButton>
             <GameHUDButton
-              ariaLabel={muted ? "打开音效" : "关闭音效"}
+              ariaLabel={muted ? copy.sfxOn : copy.sfxOff}
               onClick={() => {
                 if (isSfxMuted()) {
                   setSfxMuted(false);
@@ -126,8 +130,8 @@ export function HomeHeader({
               </span>
             </GameHUDButton>
             <Link
-              href="/profile"
-              aria-label="设置"
+              href="/settings"
+              aria-label={copy.settings}
               onClick={() => playSfx("tap")}
               className="hud-round-btn flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
             >

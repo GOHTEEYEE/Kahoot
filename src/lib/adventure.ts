@@ -1,6 +1,8 @@
 import type { SubjectId } from "./curriculum";
+import { localizedSubject, localizedWorldName } from "./i18n/home";
+import type { AppLocale } from "./i18n/locale";
+import { pickLocalized } from "./i18n/locale";
 import type { QuestionCategory } from "./questions";
-import { getSubjectWorld } from "./worlds";
 
 export type AdventureLocation = {
   id: string;
@@ -60,9 +62,12 @@ export function adventureLocations(subject: SubjectId): AdventureLocation[] {
   }));
 }
 
-export function adventureWorldTitle(subject: SubjectId): string {
-  const w = getSubjectWorld(subject);
-  return `${w.subjectName} · ${w.worldName}`;
+export function adventureWorldTitle(subject: SubjectId, locale: AppLocale): string {
+  return `${localizedSubject(subject, locale)} · ${localizedWorldName(subject, locale)}`;
+}
+
+export function localizedAdventureName(loc: AdventureLocation, locale: AppLocale): string {
+  return pickLocalized(loc.name, loc.nameEn, locale);
 }
 
 function progressKey(accountId: string): string {

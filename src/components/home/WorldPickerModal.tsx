@@ -14,6 +14,9 @@ import type { WorldStageId } from "../../lib/worlds";
 import { getSubjectStats } from "../../lib/storage";
 import type { StudentAccount } from "../../lib/account";
 import { playSfx } from "../../lib/audio/sfx";
+import { getHomeCopy, localizedSubject, localizedWorldName } from "../../lib/i18n/home";
+import { localizedWorldStageName } from "../../lib/i18n/labels";
+import { useLocale } from "../../lib/i18n/useLocale";
 import { GameIcon } from "./GameIcon";
 import { GameButton } from "../game-ui/GameButton";
 
@@ -36,16 +39,19 @@ export function WorldPickerModal({
   onSelect,
   onViewStage,
 }: Props) {
+  const { locale } = useLocale();
+  const copy = getHomeCopy(locale);
   const [browse, setBrowse] = useState(current);
 
   useEffect(() => {
     if (open) setBrowse(current);
   }, [open, current]);
 
-  const world = getSubjectWorld(browse);
   const trophies = getSubjectStats(account, browse).trophies;
   const currentStage = getWorldStage(trophies);
   const pack = getWorldArtPack(browse);
+  const subjectLabel = localizedSubject(browse, locale);
+  const worldLabel = localizedWorldName(browse, locale);
 
   return (
     <AnimatePresence>
@@ -73,10 +79,10 @@ export function WorldPickerModal({
                 World Map
               </p>
               <h3 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#fff8ea] drop-shadow-[0_2px_0_rgba(90,40,10,0.4)]">
-                世界地图
+                {copy.worldMapTitle}
               </h3>
               <p className="mt-0.5 text-xs font-bold text-[#ffe7b4]/85">
-                {world.subjectName} · {world.worldName} · 点关卡看小岛
+                {subjectLabel} · {worldLabel} · {copy.worldMapHint}
               </p>
             </div>
 
@@ -99,7 +105,7 @@ export function WorldPickerModal({
                           : "bg-white/80 text-[#5a4630] hover:bg-white"
                       }`}
                     >
-                      {w.subjectName}
+                      {localizedSubject(w.subject, locale)}
                     </button>
                   );
                 })}
@@ -113,6 +119,7 @@ export function WorldPickerModal({
                 const isCurrent = currentStage.id === stage.id;
                 const isViewing = (viewingStage ?? currentStage.id) === stage.id;
                 const remain = Math.max(0, stage.minTrophies - trophies);
+                const stageTitle = localizedWorldStageName(stage.id, locale);
 
                 return (
                   <button
@@ -151,10 +158,10 @@ export function WorldPickerModal({
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className={`block text-[11px] font-extrabold ${isViewing ? "text-white/70" : "text-[#8a7355]"}`}>
-                        Lv.{stage.level} · {stage.nameEn}
+                        Lv.{stage.level} · {localizedWorldStageName(stage.id, locale)}
                       </span>
                       <span className="block font-[family-name:var(--font-display)] text-lg font-bold leading-tight">
-                        {stage.name}
+                        {stageTitle}
                       </span>
                       <span
                         className={`mt-1 flex items-center gap-1 text-xs font-extrabold ${
@@ -162,25 +169,27 @@ export function WorldPickerModal({
                         }`}
                       >
                         <GameIcon name="trophy" className="h-3.5 w-3.5" />
-                        {stage.minTrophies === 0 ? "免费解锁" : `${stage.minTrophies} 奖杯解锁`}
+                        {stage.minTrophies === 0
+                          ? copy.unlockFree
+                          : copy.unlockTrophies(stage.minTrophies)}
                       </span>
                       {!designed ? (
                         <span className={`mt-0.5 block text-[10px] font-bold ${isViewing ? "text-white/55" : "text-[#9a8464]"}`}>
-                          地图即将揭晓
+                          {copy.mapComingSoon}
                         </span>
                       ) : null}
                     </span>
                     {isViewing ? (
                       <span className="rounded-full bg-[#ffd66b] px-2 py-1 text-[10px] font-extrabold text-[#3d2f1e]">
-                        {isCurrent ? "当前" : "预览"}
+                        {isCurrent ? copy.current : copy.preview}
                       </span>
                     ) : unlocked ? (
                       <span className="rounded-full bg-[#d9f5c8] px-2 py-1 text-[10px] font-extrabold text-[#14682a]">
-                        已解锁
+                        {copy.unlocked}
                       </span>
                     ) : (
                       <span className="rounded-full bg-white/80 px-2 py-1 text-center text-[10px] font-extrabold text-[#8a5a18]">
-                        还差
+                        {copy.needMore}
                         <br />
                         {remain}
                       </span>
@@ -199,7 +208,7 @@ export function WorldPickerModal({
                 }}
                 className="w-full rounded-full bg-[#e8d7b8] py-3 text-sm font-extrabold text-[#5a4630]"
               >
-                关闭
+                {copy.close}
               </button>
             </div>
           </motion.div>
@@ -210,13 +219,16 @@ export function WorldPickerModal({
 }
 
 export function ChangeWorldButton({ onClick }: { onClick: () => void }) {
+  const { locale } = useLocale();
+  const copy = getHomeCopy(locale);
+
   return (
     <GameButton
       variant="green"
       icon="map"
       iconSize="worldMap"
-      titleZh="世界地图"
-      titleEn="WORLD MAP"
+      titleZh={copy.worldMap}
+      titleEn={copy.worldMapSub}
       flexBasisClass="basis-[44%]"
       onClick={() => {
         playSfx("whoosh");

@@ -5,25 +5,30 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 
 import { playSfx } from "../../lib/audio/sfx";
+import { getHomeCopy } from "../../lib/i18n/home";
+import { useLocale } from "../../lib/i18n/useLocale";
 import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion";
 import { GameIcon } from "../home/GameIcon";
 
-const TABS = [
-  { href: "/", label: "首页", sub: "Home", icon: "home" },
-  { href: "/spirits", label: "精灵", sub: "Spirits", icon: "spirit" },
-  { href: "/rewards", label: "通行证", sub: "Pass", icon: "medal" },
-  { href: "/leaderboard", label: "排行榜", sub: "Rank", icon: "trophy" },
-  { href: "/profile", label: "我的", sub: "Profile", icon: "backpack" },
+const TAB_DEFS = [
+  { href: "/", key: "home" as const, sub: "Home", icon: "home" },
+  { href: "/spirits", key: "spirits" as const, sub: "Spirits", icon: "spirit" },
+  { href: "/rewards", key: "pass" as const, sub: "Pass", icon: "medal" },
+  { href: "/leaderboard", key: "rank" as const, sub: "Rank", icon: "trophy" },
+  { href: "/profile", key: "profile" as const, sub: "Profile", icon: "backpack" },
 ] as const;
 
 export function GameBottomNav() {
   const pathname = usePathname();
   const reduced = usePrefersReducedMotion();
+  const { locale } = useLocale();
+  const copy = getHomeCopy(locale);
 
   return (
     <nav className="pointer-events-none absolute inset-x-0 bottom-0 z-40 px-2 pb-[max(0.35rem,env(safe-area-inset-bottom))]">
       <ul className="nav-dock pointer-events-auto mx-auto flex h-[var(--home-nav-h)] w-full items-stretch justify-between gap-0.5 rounded-[1.35rem] px-1.5 py-0.5">
-        {TABS.map((tab) => {
+        {TAB_DEFS.map((tab) => {
+          const label = copy.nav[tab.key];
           const active =
             tab.href === "/"
               ? pathname === "/"
@@ -37,7 +42,7 @@ export function GameBottomNav() {
                 className={`flex w-full flex-col items-center justify-center gap-0.5 rounded-[0.9rem] px-0.5 py-1 text-center transition-transform duration-200 ${
                   active ? "nav-tab-active" : "text-[#8a7355]"
                 }`}
-                aria-label={`${tab.label} ${tab.sub}`}
+                aria-label={`${label} ${tab.sub}`}
               >
                 <motion.span
                   key={`${tab.href}-${active ? "on" : "off"}`}
@@ -52,7 +57,7 @@ export function GameBottomNav() {
                   <GameIcon name={tab.icon} size="nav" />
                 </motion.span>
                 <span className="font-[family-name:var(--font-display)] text-[9px] font-bold leading-none">
-                  {tab.label}
+                  {label}
                 </span>
                 <span className="text-[6px] font-extrabold leading-none tracking-wide opacity-60">
                   {tab.sub}
@@ -65,4 +70,3 @@ export function GameBottomNav() {
     </nav>
   );
 }
-

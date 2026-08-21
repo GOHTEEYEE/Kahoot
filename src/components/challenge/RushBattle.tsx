@@ -16,11 +16,17 @@ import type { StudentAccount } from "../../lib/account";
 import type { SubjectId } from "../../lib/curriculum";
 import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion";
 import { playSfx } from "../../lib/audio/sfx";
+import { getChallengeCopy } from "../../lib/i18n/challenge";
+import { getSharedLabels } from "../../lib/i18n/labels";
+import { useLocale } from "../../lib/i18n/useLocale";
 
 type Phase = "play" | "result";
 
 export function RushBattle() {
   const router = useRouter();
+  const { locale } = useLocale();
+  const challenge = getChallengeCopy(locale);
+  const labels = getSharedLabels(locale);
   const reduced = usePrefersReducedMotion();
   const [account, setAccount] = useState<StudentAccount | null>(null);
   const [subject, setSubject] = useState<SubjectId>("math");
@@ -163,12 +169,12 @@ export function RushBattle() {
   }
 
   if (!account || !question) {
-    return <div className="flex flex-1 items-center justify-center text-[#6b5340]">准备中…</div>;
+    return <div className="flex flex-1 items-center justify-center text-[#6b5340]">{labels.preparing}</div>;
   }
 
   if (phase === "result" && result) {
     return (
-      <ChallengeShell title="Knowledge Rush" subtitle="30 SECONDS" backHref="/challenge">
+      <ChallengeShell title={challenge.modes.rush.title} subtitle={challenge.modes.rush.description} backHref="/challenge">
         <ChallengeResult
           title="KNOWLEDGE RUSH COMPLETE"
           extra={`Best Streak ${bestStreak} · Answered ${result.total}`}
@@ -183,7 +189,7 @@ export function RushBattle() {
   const seconds = Math.ceil(runMs / 1000);
 
   return (
-    <ChallengeShell title="Knowledge Rush" subtitle="30 SECONDS" backHref="/challenge">
+    <ChallengeShell title={challenge.modes.rush.title} subtitle={challenge.modes.rush.description} backHref="/challenge">
       <div className="flex items-center justify-between gap-2">
         <div
           className={`hud-dark rounded-full px-3 py-1 font-[family-name:var(--font-display)] text-2xl font-bold text-[#ffe27a] ${

@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 
 import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion";
+import { getHomeCopy } from "../../lib/i18n/home";
+import { useLocale } from "../../lib/i18n/useLocale";
 import { GameIcon } from "../home/GameIcon";
 
 type Props = {
@@ -27,6 +29,8 @@ export function GameWorldHeader({
   plaqueProgress,
 }: Props) {
   const reduced = usePrefersReducedMotion();
+  const { locale } = useLocale();
+  const copy = getHomeCopy(locale);
 
   return (
     <motion.button
@@ -34,7 +38,7 @@ export function GameWorldHeader({
       onClick={onClick}
       className="wood-plaque-leaf relative z-20 mx-auto mb-0.5 block shrink-0"
       style={{ width: "var(--world-title-width)" }}
-      aria-label="查看关卡地图"
+      aria-label={copy.viewMap}
       whileTap={{ scale: 0.98 }}
     >
       <div

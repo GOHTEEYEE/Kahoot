@@ -6,6 +6,9 @@ import { TrophyCount } from "./TrophyCount";
 import { GameIcon } from "./home/GameIcon";
 import type { MatchResult } from "../lib/trophy";
 import { getRank } from "../lib/trophy";
+import { localizedRankName } from "../lib/i18n/labels";
+import { getPlayCopy } from "../lib/i18n/play";
+import { useLocale } from "../lib/i18n/useLocale";
 
 type Props = {
   result: MatchResult;
@@ -20,10 +23,10 @@ type Props = {
   onOpenReview: () => void;
 };
 
-const COPY: Record<MatchResult, { title: string; tone: string }> = {
-  win: { title: "胜利！", tone: "text-[var(--brand-deep)]" },
-  lose: { title: "差一点！", tone: "text-[var(--red)]" },
-  draw: { title: "平局", tone: "text-[var(--ink)]" },
+const COPY: Record<MatchResult, { tone: string }> = {
+  win: { tone: "text-[var(--brand-deep)]" },
+  lose: { tone: "text-[var(--red)]" },
+  draw: { tone: "text-[var(--ink)]" },
 };
 
 export function ResultScreen({
@@ -39,6 +42,8 @@ export function ResultScreen({
   onOpenReview,
 }: Props) {
   const rank = getRank(trophiesAfter);
+  const { locale } = useLocale();
+  const play = getPlayCopy(locale);
   const copy = COPY[result];
   const deltaText = delta > 0 ? `+${delta}` : `${delta}`;
   const pieces = useMemo(
@@ -71,11 +76,11 @@ export function ResultScreen({
       <h1
         className={`animate-banner-drop font-[family-name:var(--font-display)] text-5xl font-bold sm:text-6xl ${copy.tone}`}
       >
-        {copy.title}
+        {play.result[result]}
       </h1>
 
       <div className="grid w-full grid-cols-2 gap-3">
-        <ScoreCard label="你" score={playerScore} highlight delay="0.1s" />
+        <ScoreCard label={play.you} score={playerScore} highlight delay="0.1s" />
         <ScoreCard label={opponentName} score={opponentScore} delay="0.2s" />
       </div>
 
@@ -84,7 +89,7 @@ export function ResultScreen({
         style={{ animationDelay: "0.25s" }}
       >
         <p className="text-sm font-bold tracking-wide text-[var(--ink-soft)]">
-          {subjectName}副本奖杯
+          {play.dungeonTrophies(subjectName)}
         </p>
         <p className="mt-2 flex items-center justify-center gap-2 font-[family-name:var(--font-display)] text-4xl font-bold text-[var(--ink)]">
           <GameIcon name="trophy" size="progress" className="animate-float shrink-0" />
@@ -102,7 +107,7 @@ export function ResultScreen({
           </span>
         </p>
         <p className="mt-1 text-sm text-[var(--ink-soft)]">
-          {trophiesBefore} → {trophiesAfter} · 段位 {rank.name}
+          {play.rankLine(trophiesBefore, trophiesAfter, localizedRankName(rank.id, locale))}
         </p>
       </div>
 
@@ -111,7 +116,7 @@ export function ResultScreen({
         onClick={onOpenReview}
         className="pressable animate-pulse-glow w-full rounded-[1.4rem] bg-[rgba(20,53,47,0.9)] px-6 py-4 text-lg font-extrabold text-[var(--accent)] shadow-[var(--shadow)]"
       >
-        打开复盘宝箱 · 看对错 + AI 讲解
+        {play.openReview}
       </button>
 
       <div className="flex w-full flex-col gap-3 sm:flex-row">
@@ -120,20 +125,20 @@ export function ResultScreen({
           onClick={onRematch}
           className="pressable flex-1 rounded-full bg-[var(--brand)] px-6 py-4 text-lg font-extrabold text-white shadow-[var(--shadow)] transition hover:bg-[var(--brand-deep)]"
         >
-          再来一局
+          {play.rematch}
         </button>
         <Link
           href="/leaderboard"
           className="pressable flex flex-1 items-center justify-center rounded-full bg-[var(--accent)] px-6 py-4 text-lg font-extrabold text-[var(--ink)] shadow-[var(--shadow)] transition hover:bg-[var(--accent-deep)] hover:text-white"
         >
-          看排行榜
+          {play.seeLeaderboard}
         </Link>
       </div>
       <Link
         href="/"
         className="text-sm font-bold text-[var(--brand-deep)] underline-offset-4 hover:underline"
       >
-        返回首页
+        {play.backHome}
       </Link>
     </section>
   );

@@ -24,11 +24,15 @@ import { RankingMotivation } from "./leaderboard/RankingMotivation";
 import { CurrentUserRanking } from "./leaderboard/CurrentUserRanking";
 import { RankingRulesModal } from "./leaderboard/RankingRulesModal";
 import { PlayerMiniProfileModal } from "./leaderboard/PlayerMiniProfileModal";
+import { getLeaderboardCopy } from "../lib/i18n/leaderboard";
+import { useLocale } from "../lib/i18n/useLocale";
 
 const LIST_LIMIT = 10;
 
 export function LeaderboardClient() {
   const router = useRouter();
+  const { locale } = useLocale();
+  const copy = getLeaderboardCopy(locale);
   const [subject, setSubject] = useState<RankingSubjectFilter>("chinese");
   const [period] = useState<RankingPeriod>("all");
   const [meName, setMeName] = useState<string | null>(null);
@@ -63,11 +67,11 @@ export function LeaderboardClient() {
   const snap = useMemo(() => {
     if (status !== "ready" || !meName) return null;
     try {
-      return loadRanking(subject, period, meName);
+      return loadRanking(subject, period, meName, locale);
     } catch {
       return null;
     }
-  }, [status, subject, period, meName, reloadKey]);
+  }, [status, subject, period, meName, reloadKey, locale]);
 
   useEffect(() => {
     if (status === "ready" && snap == null) setStatus("error");
@@ -95,7 +99,7 @@ export function LeaderboardClient() {
           <Link
             href="/"
             onClick={() => playSfx("tap")}
-            aria-label="返回"
+            aria-label={copy.back}
             className="flex h-10 w-10 items-center justify-center rounded-full bg-[#fff8ea] text-lg font-black text-[#6b4525] shadow-[var(--game-shadow)] ring-1 ring-[#e8c98a]/50"
           >
             ←
@@ -104,10 +108,10 @@ export function LeaderboardClient() {
             <span className="wood-leaf" style={{ left: "-0.35rem", transform: "translateY(-50%) rotate(-28deg)" }} />
             <span className="wood-leaf" style={{ right: "-0.35rem", left: "auto", transform: "translateY(-50%) scaleX(-1) rotate(-28deg)" }} />
             <h1 className="font-[family-name:var(--font-display)] text-[1.2rem] font-bold leading-tight text-[#fff8ea] drop-shadow-[0_2px_0_rgba(90,40,10,0.35)]">
-              奖杯排行榜
+              {copy.title}
             </h1>
             <p className="text-[9px] font-extrabold text-[#ffe7b4]/85">
-              各科目奖杯分开排 · 可看总奖杯
+              {copy.subtitle}
             </p>
           </div>
           <button
@@ -118,7 +122,7 @@ export function LeaderboardClient() {
             }}
             className="flex h-10 items-center justify-center rounded-full bg-[#a96b32] px-3 text-[12px] font-extrabold text-[#fff8ea] shadow-[var(--game-shadow)]"
           >
-            规则
+            {copy.rules}
           </button>
         </header>
 
@@ -138,7 +142,7 @@ export function LeaderboardClient() {
           {status === "error" ? (
             <div className="rounded-[1.35rem] bg-[#fff8ea]/92 px-4 py-10 text-center shadow-[var(--game-shadow)] ring-1 ring-[#e8c98a]/40">
               <p className="font-[family-name:var(--font-display)] text-lg font-bold text-[#3d2f1e]">
-                排行榜暂时无法加载
+                {copy.loadError}
               </p>
               <button
                 type="button"
@@ -148,7 +152,7 @@ export function LeaderboardClient() {
                 }}
                 className="mt-4 rounded-full bg-[var(--game-green)] px-5 py-2.5 text-sm font-extrabold text-white shadow-[var(--game-shadow)]"
               >
-                重新加载
+                {copy.reload}
               </button>
             </div>
           ) : null}
@@ -156,15 +160,15 @@ export function LeaderboardClient() {
           {status === "ready" && snap && list.length === 0 ? (
             <div className="rounded-[1.35rem] bg-[#fff8ea]/92 px-4 py-10 text-center shadow-[var(--game-shadow)] ring-1 ring-[#e8c98a]/40">
               <p className="font-[family-name:var(--font-display)] text-lg font-bold text-[#3d2f1e]">
-                还没有同学参加挑战
+                {copy.emptyTitle}
               </p>
-              <p className="mt-1 text-sm font-bold text-[#8a7355]">完成一局挑战即可登上奖杯榜</p>
+              <p className="mt-1 text-sm font-bold text-[#8a7355]">{copy.emptyHint}</p>
               <Link
                 href="/challenge"
                 onClick={() => playSfx("whoosh")}
                 className="mt-4 inline-flex rounded-full bg-[var(--game-green)] px-5 py-2.5 text-sm font-extrabold text-white shadow-[var(--game-shadow)]"
               >
-                去挑战
+                {copy.goChallenge}
               </Link>
             </div>
           ) : null}
@@ -174,10 +178,10 @@ export function LeaderboardClient() {
               {/* Single vertical leaderboard */}
               <section className="overflow-hidden rounded-[1.35rem] bg-[#fff8ea]/94 shadow-[var(--game-shadow)] ring-1 ring-[#e8c98a]/40">
                 <div className="flex items-center gap-2.5 border-b border-[#e8dcc4]/70 px-3 py-1.5 text-[10px] font-extrabold tracking-wide text-[#a08968] uppercase">
-                  <span className="w-8 text-center">排名</span>
+                  <span className="w-8 text-center">{copy.colRank}</span>
                   <span className="w-11" />
-                  <span className="flex-1">玩家信息</span>
-                  <span className="w-14 text-right">奖杯数</span>
+                  <span className="flex-1">{copy.colPlayer}</span>
+                  <span className="w-14 text-right">{copy.colTrophies}</span>
                 </div>
                 <ol>
                   {list.map((row, i) => {

@@ -7,9 +7,16 @@ import { GameIcon } from "./home/GameIcon";
 import { SubjectMascotIcon } from "./icons/SubjectMascotIcon";
 import { SUBJECT_WORLDS } from "../lib/worlds";
 import { getCurrentAccount, getSubjectStats } from "../lib/storage";
+import { getPlayCopy } from "../lib/i18n/play";
+import { getSharedLabels } from "../lib/i18n/labels";
+import { localizedSubject } from "../lib/i18n/home";
+import { useLocale } from "../lib/i18n/useLocale";
 
 export function SpiritsClient() {
   const router = useRouter();
+  const { locale } = useLocale();
+  const play = getPlayCopy(locale);
+  const labels = getSharedLabels(locale);
   const [ready, setReady] = useState(false);
   const [trophies, setTrophies] = useState<Record<string, number>>({});
 
@@ -29,7 +36,7 @@ export function SpiritsClient() {
 
   if (!ready) {
     return (
-      <div className="flex flex-1 items-center justify-center text-[var(--ink-soft)]">加载中…</div>
+      <div className="flex flex-1 items-center justify-center text-[var(--ink-soft)]">{labels.loading}</div>
     );
   }
 
@@ -40,10 +47,10 @@ export function SpiritsClient() {
           Spirits
         </p>
         <h1 className="mt-1 font-[family-name:var(--font-display)] text-3xl font-bold">
-          科目精灵
+          {play.spiritsTitle}
         </h1>
         <p className="mt-1 text-sm font-bold text-[var(--ink-soft)]">
-          Mock 收集页 · 后续接碎片系统
+          {play.spiritsHint}
         </p>
       </header>
 
@@ -58,7 +65,7 @@ export function SpiritsClient() {
             <p className="mt-2 font-[family-name:var(--font-display)] text-lg font-bold">
               {w.mascotName}
             </p>
-            <p className="text-xs font-bold text-white/80">{w.subjectName}</p>
+            <p className="text-xs font-bold text-white/80">{localizedSubject(w.subject, locale)}</p>
             <p className="mt-2 flex items-center gap-1 text-sm font-extrabold">
               <GameIcon name="trophy" size="utility" />
               {trophies[w.subject] ?? 0}

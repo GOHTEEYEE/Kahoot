@@ -6,6 +6,9 @@ import { useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { gradeFromAge, MALAYSIA_STATES } from "../lib/account";
 import { DEMO_PASSWORD, MOCK_ACCOUNTS } from "../lib/mockData";
 import { signIn, signUp } from "../lib/storage";
+import { getAuthCopy, localizeAuthError } from "../lib/i18n/auth";
+import { localizedGrade } from "../lib/i18n/home";
+import { useLocale } from "../lib/i18n/useLocale";
 
 type Mode = "login" | "signup";
 
@@ -14,6 +17,8 @@ const inputClass =
 
 export function AuthClient() {
   const router = useRouter();
+  const { locale } = useLocale();
+  const copy = getAuthCopy(locale);
   const [mode, setMode] = useState<Mode>("signup");
   const [error, setError] = useState("");
   const [username, setUsername] = useState("");
@@ -33,7 +38,7 @@ export function AuthClient() {
     if (mode === "login") {
       const res = await signIn(username, password);
       if (!res.ok) {
-        setError(res.error);
+        setError(localizeAuthError(res.error, locale));
         return;
       }
       router.replace("/");
@@ -50,7 +55,7 @@ export function AuthClient() {
       contact,
     });
     if (!res.ok) {
-      setError(res.error);
+      setError(localizeAuthError(res.error, locale));
       return;
     }
     router.replace("/");
@@ -63,16 +68,16 @@ export function AuthClient() {
           Student Account
         </p>
         <h1 className="mt-2 font-[family-name:var(--font-display)] text-4xl font-bold text-[var(--ink)]">
-          {mode === "signup" ? "创建账号" : "登录账号"}
+          {mode === "signup" ? copy.createAccount : copy.loginAccount}
         </h1>
         <p className="mt-2 text-sm text-[var(--ink-soft)]">
-          目前为 <strong>Mock 演示模式</strong>：可用下方演示账号，或自己注册（仅存在本机）。
+          {copy.mockHint}
         </p>
       </header>
 
       <div className="mb-4 rounded-[1.2rem] bg-white/80 p-3 shadow-sm">
         <p className="mb-2 text-xs font-extrabold text-[var(--ink-soft)]">
-          一键登录 Mock 账号（密码均为 {DEMO_PASSWORD}）
+          {copy.mockLogin(DEMO_PASSWORD)}
         </p>
         <div className="flex flex-wrap gap-2">
           {MOCK_ACCOUNTS.map((a) => (
@@ -86,14 +91,14 @@ export function AuthClient() {
                 setError("");
                 const res = await signIn(a.username, DEMO_PASSWORD);
                 if (!res.ok) {
-                  setError(res.error);
+                  setError(localizeAuthError(res.error, locale));
                   return;
                 }
                 router.replace("/");
               }}
               className="rounded-full bg-[var(--bg-top)] px-3 py-1.5 text-xs font-extrabold text-[var(--brand-deep)]"
             >
-              {a.displayName} · {a.grade}年级
+              {a.displayName} · {localizedGrade(a.grade, locale)}
             </button>
           ))}
         </div>
@@ -110,7 +115,7 @@ export function AuthClient() {
             mode === "signup" ? "bg-[var(--brand)] text-white" : "text-[var(--ink-soft)]"
           }`}
         >
-          注册 Sign up
+          {copy.signup}
         </button>
         <button
           type="button"
@@ -122,7 +127,7 @@ export function AuthClient() {
             mode === "login" ? "bg-[var(--brand)] text-white" : "text-[var(--ink-soft)]"
           }`}
         >
-          登录 Login
+          {copy.login}
         </button>
       </div>
 
@@ -130,23 +135,23 @@ export function AuthClient() {
         onSubmit={onSubmit}
         className="flex flex-col gap-3 rounded-[1.6rem] bg-white/75 p-5 shadow-[var(--shadow)]"
       >
-        <Field label="登录名 Username">
+        <Field label={copy.username}>
           <input
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className={inputClass}
-            placeholder="例如：ali_2026"
+            placeholder={copy.usernamePh}
             autoComplete="username"
             required
           />
         </Field>
-        <Field label="密码 Password">
+        <Field label={copy.password}>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className={inputClass}
-            placeholder="至少 4 位"
+            placeholder={copy.passwordPh}
             autoComplete={mode === "login" ? "current-password" : "new-password"}
             required
           />
@@ -154,16 +159,16 @@ export function AuthClient() {
 
         {mode === "signup" ? (
           <>
-            <Field label="姓名 Name">
+            <Field label={copy.name}>
               <input
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 className={inputClass}
-                placeholder="学生姓名"
+                placeholder={copy.namePh}
                 required
               />
             </Field>
-            <Field label={`年龄 Age（将锁定为 ${lockedGrade} 年级）`}>
+            <Field label={copy.ageLocksGrade(localizedGrade(lockedGrade, locale))}>
               <input
                 type="number"
                 min={6}
@@ -174,16 +179,16 @@ export function AuthClient() {
                 required
               />
             </Field>
-            <Field label="学校名字 School">
+            <Field label={copy.school}>
               <input
                 value={school}
                 onChange={(e) => setSchool(e.target.value)}
                 className={inputClass}
-                placeholder="例如：SJK(C) Example"
+                placeholder="SJK(C) Example"
                 required
               />
             </Field>
-            <Field label="州属 State">
+            <Field label={copy.state}>
               <select
                 value={state}
                 onChange={(e) => setState(e.target.value)}
@@ -197,18 +202,17 @@ export function AuthClient() {
                 ))}
               </select>
             </Field>
-            <Field label="联系方式 Contact（家长电话/电邮）">
+            <Field label={copy.contact}>
               <input
                 value={contact}
                 onChange={(e) => setContact(e.target.value)}
                 className={inputClass}
-                placeholder="电话或 email"
+                placeholder={copy.contactPh}
                 required
               />
             </Field>
             <p className="rounded-2xl bg-[var(--bg-top)] px-3 py-2 text-xs font-bold text-[var(--brand-deep)]">
-              年龄 {age || "—"} 岁 → 课程锁定 <strong>{lockedGrade} 年级</strong>
-              （注册后不可自行更改）
+              {copy.ageLockNote(age || "—", localizedGrade(lockedGrade, locale))}
             </p>
           </>
         ) : null}
@@ -223,12 +227,12 @@ export function AuthClient() {
           type="submit"
           className="pressable mt-2 rounded-full bg-[var(--brand)] px-6 py-3.5 text-lg font-extrabold text-white"
         >
-          {mode === "signup" ? "创建并进入" : "登录"}
+          {mode === "signup" ? copy.createEnter : copy.loginBtn}
         </button>
       </form>
 
       <Link href="/" className="mt-5 text-center text-sm font-bold text-[var(--brand-deep)]">
-        返回首页
+        {copy.backHome}
       </Link>
     </div>
   );

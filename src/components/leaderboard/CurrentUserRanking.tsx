@@ -2,6 +2,10 @@
 
 import { GameIcon } from "../home/GameIcon";
 import type { LeaderboardEntry } from "../../lib/leaderboard";
+import { getLeaderboardCopy } from "../../lib/i18n/leaderboard";
+import { localizedGrade } from "../../lib/i18n/home";
+import { getSharedLabels, localizedRankName } from "../../lib/i18n/labels";
+import { useLocale } from "../../lib/i18n/useLocale";
 
 type Props = {
   me: LeaderboardEntry | null;
@@ -10,14 +14,17 @@ type Props = {
 
 /** Summary card below the list — not part of ranks 1–10. */
 export function CurrentUserRanking({ me, place }: Props) {
+  const { locale } = useLocale();
+  const copy = getLeaderboardCopy(locale);
+  const labels = getSharedLabels(locale);
   return (
     <section className="rounded-[1.25rem] bg-[#3c3425]/94 px-3.5 py-3 text-[#fff8ea] shadow-[var(--game-shadow)] ring-1 ring-[#ffe7b8]/20">
       <p className="text-[11px] font-extrabold tracking-wide text-[#ffe7b4]/85 uppercase">
-        我的排名
+        {copy.myRank}
       </p>
       {!me || place < 1 ? (
         <p className="mt-2 font-[family-name:var(--font-display)] text-base font-bold">
-          尚未上榜 · 完成挑战即可入榜
+          {copy.notRanked}
         </p>
       ) : (
         <div className="mt-2 flex items-center gap-2.5">
@@ -35,10 +42,11 @@ export function CurrentUserRanking({ me, place }: Props) {
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate font-[family-name:var(--font-display)] text-[15px] font-bold">
-              {me.displayName} · 你
+              {me.displayName}
+              {labels.youSuffix}
             </p>
             <p className="truncate text-[11px] font-bold text-[#ffe7b4]/75">
-              {me.rankTitle} · {me.grade}年级
+              {localizedRankName(me.rankTitle, locale)} · {localizedGrade(me.grade as 1 | 2 | 3 | 4 | 5 | 6, locale)}
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-0.5 text-[#ffd75a]">

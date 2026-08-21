@@ -123,7 +123,7 @@ export function ArtWorldScene({ pack, stage, onIslandClick }: Props) {
           {onIslandClick ? (
             <button
               type="button"
-              aria-label="查看关卡地图"
+              aria-label="View stage map"
               onClick={() => {
                 playSfx("whoosh");
                 onIslandClick();

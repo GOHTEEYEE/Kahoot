@@ -26,10 +26,13 @@ import {
 import type { StudentAccount } from "../lib/account";
 import {
   getDungeon,
-  gradeLabel,
   type Grade,
   type SubjectId,
 } from "../lib/curriculum";
+import { localizedGrade, localizedSubject } from "../lib/i18n/home";
+import { getSharedLabels } from "../lib/i18n/labels";
+import { getPlayCopy } from "../lib/i18n/play";
+import { useLocale } from "../lib/i18n/useLocale";
 import {
   applyTrophyChange,
   calcTrophyDelta,
@@ -54,6 +57,9 @@ type RoundState = {
 
 export function BattleClient() {
   const router = useRouter();
+  const { locale } = useLocale();
+  const play = getPlayCopy(locale);
+  const labels = getSharedLabels(locale);
   const [account, setAccount] = useState<StudentAccount | null>(null);
   const [grade, setGrade] = useState<Grade>(1);
   const [subject, setSubject] = useState<SubjectId>("math");
@@ -356,7 +362,7 @@ export function BattleClient() {
   if (!account) {
     return (
       <div className="flex flex-1 items-center justify-center text-[var(--ink-soft)]">
-        准备中…
+        {labels.preparing}
       </div>
     );
   }
@@ -374,7 +380,7 @@ export function BattleClient() {
           opponent={opponent}
           searching={searching}
           kind={matchKind}
-          topic={`${gradeLabel(grade)} · ${getDungeon(subject).dungeonName}`}
+          topic={`${localizedGrade(grade, locale)} · ${getDungeon(subject).dungeonName}`}
         />
         {phase === "countdown" ? <CountdownOverlay onDone={onCountdownDone} /> : null}
       </>
@@ -392,7 +398,7 @@ export function BattleClient() {
           trophiesBefore={outcome.trophiesBefore}
           trophiesAfter={outcome.trophiesAfter}
           delta={outcome.delta}
-          subjectName={getDungeon(subject).name}
+          subjectName={localizedSubject(subject, locale)}
           onRematch={rematch}
           onOpenReview={() => setReviewOpen(true)}
         />
@@ -412,10 +418,10 @@ export function BattleClient() {
 
   const feedbackText =
     round.selected === currentQuestion.correctIndex
-      ? `答对了！+${round.playerScores[round.playerScores.length - 1]}`
+      ? play.correctGain(round.playerScores[round.playerScores.length - 1] ?? 0)
       : round.selected == null
-        ? "时间到！"
-        : "答错了，下一题加油！";
+        ? play.timesUp
+        : play.wrongNext;
 
   return (
     <section className="animate-phase-in mx-auto flex w-full max-w-2xl flex-1 flex-col gap-5 px-5 py-6">
@@ -433,7 +439,7 @@ export function BattleClient() {
             {round.index + 1}/{round.questions.length}
           </div>
           <div className="text-xs font-bold">
-            {gradeLabel(grade)} · {getDungeon(subject).dungeonName}
+            {localizedGrade(grade, locale)} · {getDungeon(subject).dungeonName}
           </div>
         </div>
         <div className="rounded-2xl bg-white/80 px-3 py-2 text-[var(--ink)]">
@@ -470,7 +476,7 @@ export function BattleClient() {
               : "text-[var(--red)]"
           }`}
         >
-          {waitingFoe ? "等待好友答题…" : feedbackText}
+          {waitingFoe ? play.waitingFriend : feedbackText}
         </p>
       ) : null}
     </section>

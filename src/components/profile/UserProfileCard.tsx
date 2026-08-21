@@ -3,6 +3,10 @@
 import { motion } from "framer-motion";
 import type { ProfileSnapshot } from "../../lib/profile";
 import { playSfx } from "../../lib/audio/sfx";
+import { localizedGrade } from "../../lib/i18n/home";
+import { getSharedLabels, localizedPlayerTitle } from "../../lib/i18n/labels";
+import { getProfileCopy } from "../../lib/i18n/profile";
+import { useLocale } from "../../lib/i18n/useLocale";
 
 type Props = {
   profile: ProfileSnapshot;
@@ -12,6 +16,9 @@ type Props = {
 
 export function UserProfileCard({ profile, onEdit, onChangeAvatar }: Props) {
   const { xp } = profile;
+  const { locale } = useLocale();
+  const copy = getProfileCopy(locale);
+  const labels = getSharedLabels(locale);
 
   return (
     <motion.section
@@ -23,7 +30,7 @@ export function UserProfileCard({ profile, onEdit, onChangeAvatar }: Props) {
       <div className="flex gap-3">
         <button
           type="button"
-          aria-label="更换头像"
+          aria-label={copy.changeAvatar}
           onClick={() => {
             playSfx("tap");
             onChangeAvatar();
@@ -48,11 +55,13 @@ export function UserProfileCard({ profile, onEdit, onChangeAvatar }: Props) {
           <div className="flex items-start gap-1.5">
             <h2 className="min-w-0 truncate font-[family-name:var(--font-display)] text-[18px] font-bold text-[#3d2f1e]">
               {profile.displayName}
-              <span className="ml-1 text-[12px] font-extrabold text-[#6ed058]">· 你</span>
+              <span className="ml-1 text-[12px] font-extrabold text-[#6ed058]">
+                {labels.youSuffix}
+              </span>
             </h2>
             <button
               type="button"
-              aria-label="编辑资料"
+              aria-label={copy.editProfile}
               onClick={() => {
                 playSfx("tap");
                 onEdit();
@@ -64,15 +73,15 @@ export function UserProfileCard({ profile, onEdit, onChangeAvatar }: Props) {
           </div>
 
           <p className="mt-1 text-[11px] font-bold leading-relaxed text-[#6b5340]">
-            {profile.age}岁 · {profile.gradeText}
+            {labels.ageYears(profile.age)} · {localizedGrade(profile.grade, locale)}
             <br />
             {profile.school}
             <br />
-            Negeri · {profile.state}
+            {copy.state} · {profile.state}
           </p>
 
           <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#ffe27a]/80 to-[#7ee08a]/55 px-2.5 py-0.5 text-[10px] font-extrabold text-[#3d2f1e] ring-1 ring-white/70">
-            称号 · {profile.title}
+            {copy.titlePrefix} · {localizedPlayerTitle(profile.titleId, locale)}
           </div>
         </div>
       </div>
@@ -93,7 +102,7 @@ export function UserProfileCard({ profile, onEdit, onChangeAvatar }: Props) {
           />
         </div>
         <p className="mt-1.5 text-[10px] font-bold text-[#8a7355]">
-          距离 Lv.{xp.level + 1} 还需 {xp.toNext.toLocaleString()} XP
+          {copy.xpToNext(xp.level + 1, xp.toNext)}
         </p>
       </div>
     </motion.section>

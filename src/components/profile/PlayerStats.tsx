@@ -3,6 +3,8 @@
 import { GameIcon } from "../home/GameIcon";
 import { playSfx } from "../../lib/audio/sfx";
 import type { ProfileSnapshot } from "../../lib/profile";
+import { getProfileCopy } from "../../lib/i18n/profile";
+import { useLocale } from "../../lib/i18n/useLocale";
 
 type StatKey = "trophy" | "power" | "streak" | "challenges";
 
@@ -11,37 +13,34 @@ type Props = {
   onOpen: (key: StatKey) => void;
 };
 
-const STATS: {
-  key: StatKey;
-  label: string;
-  icon: "trophy" | "swords" | "quest" | "challenge";
-  value: (p: ProfileSnapshot) => string;
-}[] = [
-  { key: "trophy", label: "奖杯", icon: "trophy", value: (p) => String(p.trophies) },
-  {
-    key: "power",
-    label: "学习战力",
-    icon: "swords",
-    value: (p) => String(p.learningPower.total),
-  },
-  {
-    key: "streak",
-    label: "连续学习",
-    icon: "quest",
-    value: (p) => `${p.streak.current}天`,
-  },
-  {
-    key: "challenges",
-    label: "完成挑战",
-    icon: "challenge",
-    value: (p) => String(p.completedChallenges),
-  },
-];
-
 export function PlayerStats({ profile, onOpen }: Props) {
+  const { locale } = useLocale();
+  const copy = getProfileCopy(locale);
+  const stats: {
+    key: StatKey;
+    label: string;
+    icon: "trophy" | "swords" | "quest" | "challenge";
+    value: string;
+  }[] = [
+    { key: "trophy", label: copy.trophy, icon: "trophy", value: String(profile.trophies) },
+    { key: "power", label: copy.power, icon: "swords", value: String(profile.learningPower.total) },
+    {
+      key: "streak",
+      label: copy.streak,
+      icon: "quest",
+      value: copy.streakDays(profile.streak.current),
+    },
+    {
+      key: "challenges",
+      label: copy.challenges,
+      icon: "challenge",
+      value: String(profile.completedChallenges),
+    },
+  ];
+
   return (
-    <section className="mt-3 grid grid-cols-4 gap-1.5" aria-label="玩家统计">
-      {STATS.map((s) => (
+    <section className="mt-3 grid grid-cols-4 gap-1.5" aria-label={copy.statsAria}>
+      {stats.map((s) => (
         <button
           key={s.key}
           type="button"
@@ -54,7 +53,7 @@ export function PlayerStats({ profile, onOpen }: Props) {
         >
           <GameIcon name={s.icon} className="h-7 w-7" />
           <p className="mt-1 font-[family-name:var(--font-display)] text-[15px] font-bold leading-none text-[#3d2f1e] tabular-nums">
-            {s.value(profile)}
+            {s.value}
           </p>
           <p className="mt-1 text-[8px] font-extrabold leading-tight text-[#8a5a18]">{s.label}</p>
         </button>

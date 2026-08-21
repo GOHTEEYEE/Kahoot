@@ -7,6 +7,7 @@ import {
 } from "./account";
 import { MOCK_ACCOUNTS } from "./mockData";
 import { logLearningActivity } from "./learningLog";
+import { supabase } from "./supabase";
 
 const ACCOUNTS_KEY = "matharena:accounts";
 const SESSION_KEY = "matharena:session";
@@ -102,6 +103,72 @@ export function logout(): void {
   setSession(null);
 }
 
+/** Clears local session and Supabase Auth session when configured. */
+export async function signOutAccount(): Promise<void> {
+  setSession(null);
+  try {
+    await supabase.auth.signOut();
+  } catch {
+    /* ignore when Supabase is unavailable */
+  }
+}
+
+/** Login email used by Auth (never display the password). */
+export function getAccountEmail(account: StudentAccount): string {
+  const contact = account.contact?.trim();
+  if (contact && contact.includes("@")) return contact;
+  return `${account.username}@matharena.fake`;
+}
+
+export function maskEmail(email: string): string {
+  const at = email.indexOf("@");
+  if (at <= 0) return "****";
+  const user = email.slice(0, at);
+  const domain = email.slice(at + 1);
+  const keep = Math.min(2, Math.max(1, user.length));
+  const stars = Math.max(2, user.length - keep);
+  return `${user.slice(0, keep)}${"*".repeat(stars)}@${domain}`;
+}
+
+export async function changePassword(
+  account: StudentAccount,
+  currentPassword: string,
+  newPassword: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const current = currentPassword.trim();
+  const next = newPassword.trim();
+
+  if (!current || !next) {
+    return { ok: false, error: "empty_password" };
+  }
+  if (next.length < 6) {
+    return { ok: false, error: "invalid_password" };
+  }
+  if (current !== account.password) {
+    return { ok: false, error: "wrong_password" };
+  }
+
+  // Prefer Supabase Auth when a real session exists
+  try {
+    const email = getAccountEmail(account);
+    const { error: reauthError } = await supabase.auth.signInWithPassword({
+      email,
+      password: current,
+    });
+    if (!reauthError) {
+      const { error: updateError } = await supabase.auth.updateUser({ password: next });
+      if (updateError) {
+        return { ok: false, error: "invalid_password" };
+      }
+    }
+  } catch {
+    /* fall through to local update for mock accounts */
+  }
+
+  saveAccount({ ...account, password: next });
+  return { ok: true };
+}
+
 export type SignUpInput = {
   username: string;
   password: string;
@@ -111,10 +178,6 @@ export type SignUpInput = {
   state: string;
   contact: string;
 };
-
-import { supabase } from "./supabase";
-
-// ... 现有变量 ...
 
 export async function signUp(input: SignUpInput): Promise<{ ok: true; account: StudentAccount } | { ok: false; error: string }> {
   const username = input.username.trim();
@@ -128,7 +191,7 @@ export async function signUp(input: SignUpInput): Promise<{ ok: true; account: S
   });
 
   if (authError) return { ok: false, error: authError.message };
-  if (!authData.user) return { ok: false, error: "注册失败，请稍后再试" };
+  if (!authData.user) return { ok: false, error: "signup_failed" };
 
   const userId = authData.user.id;
   const now = Date.now();
@@ -198,7 +261,7 @@ export async function signIn(
     password,
   });
 
-  if (authError) return { ok: false, error: "登录名或密码不正确" };
+  if (authError) return { ok: false, error: "bad_credentials" };
   
   // 2. 获取用户详细资料
   const { data: profile, error: profileError } = await supabase
@@ -215,7 +278,7 @@ export async function signIn(
       setSession(local.username);
       return { ok: true, account: local };
     }
-    return { ok: false, error: "无法同步用户资料" };
+    return { ok: false, error: "profile_sync" };
   }
 
   // 3. 构建 account 对象（包含统计数据，这里可以进一步查询，但先保持基础同步）
@@ -440,6 +503,7 @@ export function saveLocale(locale: "en" | "zh" | "ms"): void {
   try {
     const existing = readPrefs();
     localStorage.setItem(PREFS_KEY, JSON.stringify({ ...existing, locale }));
+    window.dispatchEvent(new CustomEvent("matharena:locale", { detail: locale }));
   } catch {
     /* ignore */
   }

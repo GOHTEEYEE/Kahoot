@@ -1,8 +1,10 @@
 "use client";
 
-const SHAPES = [
+import { getPlayCopy } from "../lib/i18n/play";
+import { useLocale } from "../lib/i18n/useLocale";
+
+const SHAPE_ICONS = [
   {
-    label: "三角",
     bg: "bg-[var(--red)]",
     shape: (
       <svg viewBox="0 0 24 24" className="h-7 w-7" aria-hidden>
@@ -11,7 +13,6 @@ const SHAPES = [
     ),
   },
   {
-    label: "菱形",
     bg: "bg-[var(--blue)]",
     shape: (
       <svg viewBox="0 0 24 24" className="h-7 w-7" aria-hidden>
@@ -20,7 +21,6 @@ const SHAPES = [
     ),
   },
   {
-    label: "圆形",
     bg: "bg-[var(--orange)]",
     shape: (
       <svg viewBox="0 0 24 24" className="h-7 w-7" aria-hidden>
@@ -29,7 +29,6 @@ const SHAPES = [
     ),
   },
   {
-    label: "方块",
     bg: "bg-[var(--green)]",
     shape: (
       <svg viewBox="0 0 24 24" className="h-7 w-7" aria-hidden>
@@ -58,10 +57,12 @@ export function AnswerGrid({
   dealKey = 0,
   onSelect,
 }: Props) {
+  const { locale } = useLocale();
+  const shapes = getPlayCopy(locale).shapes;
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
       {options.map((option, index) => {
-        const meta = SHAPES[index];
+        const meta = SHAPE_ICONS[index];
         let feedback = "";
         let ring = "ring-transparent";
 
@@ -83,7 +84,7 @@ export function AnswerGrid({
             onClick={() => onSelect(index)}
             style={{ animationDelay: `${index * 0.07}s` }}
             className={`${meta.bg} ${ring} ${feedback} pressable animate-card-deal flex min-h-[4.5rem] items-center gap-3 rounded-2xl px-4 py-4 text-left text-xl font-extrabold text-white shadow-[var(--shadow)] disabled:cursor-not-allowed`}
-            aria-label={`${meta.label}：${option}`}
+            aria-label={`${shapes[index]}: ${option}`}
           >
             <span className="shrink-0 opacity-90">{meta.shape}</span>
             <span className="leading-snug">{option}</span>
