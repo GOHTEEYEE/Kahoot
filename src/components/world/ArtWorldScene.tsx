@@ -76,7 +76,7 @@ export function ArtWorldScene({ pack, stage, onIslandClick }: Props) {
             className="pointer-events-none absolute bottom-0 left-[12%] right-[12%] z-[2] h-[18%] bg-gradient-to-t from-white/25 via-white/8 to-transparent blur-[6px]"
           />
         <div className="relative z-[1] h-full w-full">
-          {/* Poster stays painted so the island never blanks if VP9 fails. */}
+          {/* Layer stack: plate → waterfalls → ambient → mascot (never one baked video). */}
           {worldPlate.src ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img

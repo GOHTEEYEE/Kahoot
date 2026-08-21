@@ -47,8 +47,10 @@ export type StudentAccount = {
   school: string;
   state: string;
   contact: string;
-  /** Locked from age — not editable by student */
+  /** Primary grade band (editable on profile) */
   grade: Grade;
+  /** Profile avatar image path */
+  avatar?: string;
   stats: Record<SubjectId, SubjectStats>;
   createdAt: number;
   updatedAt: number;

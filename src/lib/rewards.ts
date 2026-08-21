@@ -2,6 +2,7 @@ import type { SubjectId } from "./curriculum";
 import { SUBJECTS } from "./curriculum";
 import type { StudentAccount } from "./account";
 import { getMockEconomy } from "./worlds";
+import { logLearningActivity } from "./learningLog";
 
 export type RewardGrant = {
   gold: number;
@@ -38,10 +39,12 @@ function canUseStorage(): boolean {
 
 export function seedWallet(account: StudentAccount): Wallet {
   const mock = getMockEconomy(account);
+  // Align wallet XP with mock level bands (250 XP per level).
+  const xp = Math.max(0, (mock.xpLevel - 1) * 250 + Math.round((mock.xpProgress / 50) * 250));
   return {
     coins: mock.coins,
     gems: mock.gems,
-    xp: mock.xpLevel * 40 + mock.xpProgress,
+    xp,
     fragments: emptyFragments(),
   };
 }
@@ -89,5 +92,11 @@ export function grantRewards(
       [subject]: (wallet.fragments[subject] ?? 0) + Math.max(0, grant.fragments),
     },
   };
-  return saveWallet(account.id, next);
+  const saved = saveWallet(account.id, next);
+  logLearningActivity(account.id, subject, {
+    challenges: 1,
+    xp: Math.max(0, grant.xp),
+    trophy: Math.max(0, grant.trophy ?? 0),
+  });
+  return saved;
 }

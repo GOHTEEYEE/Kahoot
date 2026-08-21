@@ -141,7 +141,7 @@ export function LivingMascot({ src, waveSrc, waving, reduced, hotspot }: MascotP
     const id = window.setInterval(() => {
       setPose("wave");
       tick = window.setTimeout(() => setPose("idle"), 720);
-    }, 3200);
+    }, 4200);
     return () => {
       window.clearInterval(id);
       window.clearTimeout(tick);
@@ -167,15 +167,22 @@ export function LivingMascot({ src, waveSrc, waving, reduced, hotspot }: MascotP
       initial={{ opacity: 0.7, scale: 0.97 }}
       animate={
         reduced
-          ? { opacity: 1, scale: 1 }
+          ? { opacity: 1, scale: 1, y: 0, rotate: 0 }
           : waving
-            ? { opacity: 1, rotate: [0, -8, 10, -4, 0], scale: [1, 1.06, 1] }
-            : { opacity: 1, scale: 1 }
+            ? { opacity: 1, rotate: [0, -8, 10, -4, 0], scale: [1, 1.06, 1], y: 0 }
+            : {
+                opacity: 1,
+                y: [0, -3.5, 0],
+                rotate: [0, 1.6, -1.2, 0],
+                scale: [1, 1.025, 1],
+              }
       }
       transition={
         waving
           ? { duration: 0.85, ease: "easeInOut" }
-          : { duration: 0.3 }
+          : reduced
+            ? { duration: 0.3 }
+            : { duration: 3.4, repeat: Infinity, ease: "easeInOut" }
       }
     />
   );

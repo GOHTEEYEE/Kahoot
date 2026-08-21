@@ -1,4 +1,4 @@
-import type { SubjectId } from "./curriculum";
+import type { Grade, SubjectId } from "./curriculum";
 import {
   createEmptyStats,
   gradeFromAge,
@@ -6,6 +6,7 @@ import {
   type SubjectStats,
 } from "./account";
 import { MOCK_ACCOUNTS } from "./mockData";
+import { logLearningActivity } from "./learningLog";
 
 const ACCOUNTS_KEY = "matharena:accounts";
 const SESSION_KEY = "matharena:session";
@@ -258,6 +259,7 @@ export function recordSubjectMatch(
   newTrophies: number,
 ): StudentAccount {
   const prev = getSubjectStats(account, subject);
+  const trophyDelta = Math.max(0, newTrophies) - prev.trophies;
   const stats = {
     ...account.stats,
     [subject]: {
@@ -267,7 +269,56 @@ export function recordSubjectMatch(
       draws: prev.draws + (result === "draw" ? 1 : 0),
     },
   };
-  return saveAccount({ ...account, stats });
+  const next = saveAccount({ ...account, stats });
+  logLearningActivity(account.id, subject, {
+    challenges: 1,
+    xp: result === "win" ? 16 : result === "draw" ? 10 : 6,
+    trophy: Math.max(0, trophyDelta),
+  });
+  return next;
+}
+
+export type ProfileEditInput = {
+  displayName: string;
+  age: number;
+  grade: Grade;
+  school: string;
+  state: string;
+  avatar?: string;
+};
+
+export function updateStudentProfile(
+  account: StudentAccount,
+  input: ProfileEditInput,
+): StudentAccount {
+  const age = Math.max(6, Math.min(18, Math.round(input.age)));
+  const grade = ([1, 2, 3, 4, 5, 6].includes(input.grade) ? input.grade : gradeFromAge(age)) as Grade;
+  const next = saveAccount({
+    ...account,
+    displayName: input.displayName.trim() || account.displayName,
+    age,
+    grade,
+    school: input.school.trim() || account.school,
+    state: input.state.trim() || account.state,
+    avatar: input.avatar?.trim() || account.avatar,
+  });
+
+  void supabase
+    .from("profiles")
+    .update({
+      display_name: next.displayName,
+      age: next.age,
+      grade: next.grade,
+      school: next.school,
+      state: next.state,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", next.id)
+    .then(({ error }) => {
+      if (error) console.warn("Profile cloud sync skipped", error.message);
+    });
+
+  return next;
 }
 
 /** Side-mode trophy drip. Does not count as an Arena win/loss. */
@@ -314,7 +365,7 @@ export function getLeaderboard(subject?: SubjectId): Array<{
           losses: s.losses,
         };
       })
-      .sort((a, b) => b.trophies - a.trophies);
+      .sort((a, b) => b.trophies - a.trophies || b.wins - a.wins || a.displayName.localeCompare(b.displayName));
   }
 
   return list
@@ -333,7 +384,7 @@ export function getLeaderboard(subject?: SubjectId): Array<{
         losses,
       };
     })
-    .sort((a, b) => b.trophies - a.trophies);
+    .sort((a, b) => b.trophies - a.trophies || b.wins - a.wins || a.displayName.localeCompare(b.displayName));
 }
 
 export function getSelectedSubject(): SubjectId {

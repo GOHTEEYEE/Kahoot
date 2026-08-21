@@ -1,0 +1,197 @@
+{
+  "world": "chinese",
+  "level": "lv1",
+  "name": "Chinese LV1 Arena — Modular Assets",
+  "masterStyleReference": [
+    "/public/worlds/chinese/stages/academy.png",
+    "/design/target.png"
+  ],
+  "styleNotes": {
+    "camera": "isometric / 3-quarter view",
+    "rendering": "cute stylized 3D casual mobile (Clash Royale readability)",
+    "lighting": "warm soft key light, soft shadows, warm window glow on buildings",
+    "palette": "cobalt blue roofs, warm wood, lime grass, earthy rocks, pink blossoms",
+    "avoid": ["photorealism", "UI", "baked multi-object plates", "over-detail"]
+  },
+  "assets": [
+    {
+      "name": "background-sky",
+      "path": "/worlds/chinese/lv1/static/background-sky.png",
+      "type": "texture",
+      "motion": "static",
+      "source": "reuse",
+      "reusedFrom": "/worlds/shared/home-bg.png",
+      "recommendedPixiLayer": "sky",
+      "notes": "Full-bleed sky behind arena; not cut out."
+    },
+    {
+      "name": "island-foundation",
+      "path": "/worlds/chinese/lv1/static/island-foundation.png",
+      "type": "sprite",
+      "motion": "static",
+      "source": "generated",
+      "recommendedPixiLayer": "island-base",
+      "notes": "Unified grass + rocky underside; replaces island-base and island-rocks."
+    },
+    {
+      "name": "academy",
+      "path": "/worlds/chinese/lv1/static/academy.png",
+      "type": "sprite",
+      "motion": "static",
+      "source": "reuse",
+      "reusedFrom": "/worlds/chinese/buildings/academy-standalone-cut.png",
+      "recommendedPixiLayer": "building",
+      "notes": "Standalone academy; already transparent."
+    },
+    {
+      "name": "cherry-tree-01",
+      "path": "/worlds/chinese/lv1/static/cherry-tree-01.png",
+      "type": "sprite",
+      "motion": "static",
+      "source": "generated",
+      "recommendedPixiLayer": "foliage-back",
+      "notes": "Left/back cherry tree."
+    },
+    {
+      "name": "cherry-tree-02",
+      "path": "/worlds/chinese/lv1/static/cherry-tree-02.png",
+      "type": "sprite",
+      "motion": "static",
+      "source": "generated",
+      "recommendedPixiLayer": "foliage-back",
+      "notes": "Right/back cherry tree variant."
+    },
+    {
+      "name": "bush-01",
+      "path": "/worlds/chinese/lv1/static/bush-01.png",
+      "type": "sprite",
+      "motion": "static",
+      "source": "generated",
+      "recommendedPixiLayer": "foliage-mid",
+      "notes": "Spherical manicured bush."
+    },
+    {
+      "name": "bush-02",
+      "path": "/worlds/chinese/lv1/static/bush-02.png",
+      "type": "sprite",
+      "motion": "static",
+      "source": "generated",
+      "recommendedPixiLayer": "foliage-mid",
+      "notes": "Oval bush variant."
+    },
+    {
+      "name": "flower-cluster-01",
+      "path": "/worlds/chinese/lv1/static/flower-cluster-01.png",
+      "type": "sprite",
+      "motion": "static",
+      "source": "generated",
+      "recommendedPixiLayer": "decor",
+      "notes": "Small pink flower cluster (512)."
+    },
+    {
+      "name": "flower-cluster-02",
+      "path": "/worlds/chinese/lv1/static/flower-cluster-02.png",
+      "type": "sprite",
+      "motion": "static",
+      "source": "generated",
+      "recommendedPixiLayer": "decor",
+      "notes": "Mixed pink/white flower cluster (512)."
+    },
+    {
+      "name": "rock-small-01",
+      "path": "/worlds/chinese/lv1/static/rock-small-01.png",
+      "type": "sprite",
+      "motion": "static",
+      "source": "generated",
+      "recommendedPixiLayer": "decor",
+      "notes": "Single chunky prop rock (512)."
+    },
+    {
+      "name": "rock-small-02",
+      "path": "/worlds/chinese/lv1/static/rock-small-02.png",
+      "type": "sprite",
+      "motion": "static",
+      "source": "generated",
+      "recommendedPixiLayer": "decor",
+      "notes": "Small rock cluster (512)."
+    },
+    {
+      "name": "stone-path",
+      "path": "/worlds/chinese/lv1/static/stone-path.png",
+      "type": "sprite",
+      "motion": "static",
+      "source": "generated",
+      "recommendedPixiLayer": "ground-decor",
+      "notes": "Paving path toward academy steps."
+    },
+    {
+      "name": "sign-board",
+      "path": "/worlds/chinese/lv1/static/sign-board.png",
+      "type": "sprite",
+      "motion": "static",
+      "source": "generated",
+      "recommendedPixiLayer": "decor",
+      "notes": "Stone stele; blank face (no baked text) for optional overlay."
+    },
+    {
+      "name": "momo",
+      "path": "/worlds/chinese/lv1/static/momo.png",
+      "type": "sprite",
+      "motion": "static",
+      "source": "reuse",
+      "reusedFrom": "/worlds/chinese/momo.png",
+      "recommendedPixiLayer": "mascot",
+      "notes": "Existing mascot; pair with /worlds/chinese/momo-wave.png for wave pose."
+    },
+    {
+      "name": "water",
+      "path": "/worlds/chinese/lv1/animated/water.png",
+      "type": "tiling-sprite",
+      "motion": "animated",
+      "source": "reuse",
+      "reusedFrom": "/worlds/shared/waterfall-tile.png",
+      "recommendedPixiLayer": "water-surface",
+      "notes": "Scroll tilePosition.x slowly for horizontal flow."
+    },
+    {
+      "name": "waterfall",
+      "path": "/worlds/chinese/lv1/animated/waterfall.webm",
+      "type": "video-texture",
+      "motion": "animated",
+      "source": "reuse",
+      "reusedFrom": "/worlds/shared/waterfall-flow.webm",
+      "recommendedPixiLayer": "waterfall",
+      "notes": "Seamless downward loop; mute + playsinline."
+    },
+    {
+      "name": "water-splash",
+      "path": "/worlds/chinese/lv1/animated/water-splash.webm",
+      "type": "video-texture",
+      "motion": "animated",
+      "source": "reuse",
+      "reusedFrom": "/worlds/shared/water-splash.webm",
+      "recommendedPixiLayer": "waterfall-splash",
+      "notes": "Place at waterfall base; soft alpha / add blend."
+    },
+    {
+      "name": "cloud",
+      "path": "/worlds/chinese/lv1/animated/cloud.png",
+      "type": "sprite",
+      "motion": "animated",
+      "source": "generated",
+      "recommendedPixiLayer": "sky-fx",
+      "notes": "Drift slowly on X; duplicate 2–3 instances at different depths."
+    }
+  ],
+  "recommendedPixiStackOrder": [
+    "sky",
+    "sky-fx",
+    "island-base",
+    "ground-decor",
+    "building",
+    "foliage-back",
+    "foliage-mid",
+    "decor",
+    "mascot"
+  ]
+}

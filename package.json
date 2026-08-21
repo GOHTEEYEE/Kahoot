@@ -10,13 +10,16 @@
     "remotion:studio": "remotion studio remotion/index.ts",
     "remotion:render:waterfall": "remotion render remotion/index.ts WaterfallFlow public/worlds/shared/waterfall-flow.webm --codec=vp9 --pixel-format=yuva420p --image-format=png",
     "remotion:render:splash": "remotion render remotion/index.ts WaterSplash public/worlds/shared/water-splash.webm --codec=vp9 --pixel-format=yuva420p --image-format=png",
-    "remotion:render:fx": "npm run remotion:render:waterfall && npm run remotion:render:splash"
+    "remotion:render:fx": "npm run remotion:render:waterfall && npm run remotion:render:splash",
+    "remotion:render:arena": "remotion render remotion/index.ts ChineseArenaLoop public/worlds/chinese/arena-loop.mp4",
+    "remotion:render:arena:webm": "remotion render remotion/index.ts ChineseArenaLoop public/worlds/chinese/arena-loop.webm --codec=vp9"
   },
   "dependencies": {
     "@rive-app/react-canvas": "^4.31.0",
     "@supabase/supabase-js": "^2.112.3",
     "framer-motion": "^13.1.0",
     "next": "16.3.0",
+    "pixi.js": "^8.19.0",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },

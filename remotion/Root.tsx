@@ -1,5 +1,11 @@
 import { Composition } from "remotion";
 import {
+  ARENA_DURATION_FRAMES,
+  ARENA_HEIGHT,
+  ARENA_WIDTH,
+  ChineseArenaLoop,
+} from "./compositions/ChineseArenaLoop";
+import {
   SPLASH_DURATION_FRAMES,
   WaterSplash,
   SPLASH_HEIGHT,
@@ -15,6 +21,15 @@ import {
 export const RemotionRoot = () => {
   return (
     <>
+      <Composition
+        id="ChineseArenaLoop"
+        component={ChineseArenaLoop}
+        durationInFrames={ARENA_DURATION_FRAMES}
+        fps={30}
+        width={ARENA_WIDTH}
+        height={ARENA_HEIGHT}
+        defaultProps={{}}
+      />
       <Composition
         id="WaterfallFlow"
         component={WaterfallFlow}

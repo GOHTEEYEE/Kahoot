@@ -1,7 +1,4 @@
-# Remotion — island water FX
-
-Pre-render **transparent WebM** loops for waterfall flow and base splash.  
-The Home screen plays these inside clipped hotspots (`IslandLivingFx`); the island PNG stays static.
+# Remotion — island water FX + arena promo loop
 
 ## Preview
 
@@ -9,15 +6,23 @@ The Home screen plays these inside clipped hotspots (`IslandLivingFx`); the isla
 npm run remotion:studio
 ```
 
-Open compositions **WaterfallFlow** and **WaterSplash** in the browser.
+Open compositions **ChineseArenaLoop**, **WaterfallFlow**, and **WaterSplash**.
 
-## Export (requires FFmpeg on your Mac)
+## Arena promo loop（模块化岛屿 · 喝茶 → 看镜头笑 · 樱花 · 流水）
+
+```bash
+npm run remotion:render:arena        # → public/worlds/chinese/arena-loop.mp4
+npm run remotion:render:arena:webm   # → public/worlds/chinese/arena-loop.webm
+```
+
+720×720 · **2s** · 30fps · seamless loop  
+Assets: `island-foundation` + academy/trees/momo · petals · river falls
+
+## Water FX (transparent WebM)
 
 ```bash
 npm run remotion:render:fx
 ```
-
-Outputs:
 
 | File | Size | Loop |
 |------|------|------|
@@ -28,7 +33,5 @@ Both use **VP9 + alpha** (`yuva420p`). Re-run after editing `remotion/compositio
 
 ## In the app
 
-- If WebM exists → `<video loop muted playsInline>` in each waterfall hotspot  
-- If missing or `prefers-reduced-motion` → CSS gradient fallback (no broken layout)
-
-Do **not** render the full island as video — only these small FX strips.
+- Water FX: Home waterfall hotspots (`IslandLivingFx`)
+- Arena loop: share / social / marketing — not wired into Home by default

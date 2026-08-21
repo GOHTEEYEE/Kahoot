@@ -75,20 +75,20 @@ export const WORLD_ART_PACKS: Record<SubjectId, WorldArtPack> = {
     character: { src: "/worlds/chinese/momo.png?v=live", position: "50% 50%" },
     characterWave: { src: "/worlds/chinese/momo-wave.png?v=wave", position: "50% 50%" },
     liveMascot: true,
-    mascotHotspot: { left: 0.34, top: 0.48, width: 0.32, height: 0.4 },
+    mascotHotspot: { left: 0.36, top: 0.5, width: 0.28, height: 0.38 },
     islandHeroScale: 1.12,
     islandHeroOrigin: "50% 58%",
     waterfallHotspots: [
-      { left: 0.2, top: 0.56, width: 0.1, height: 0.26 },
-      { left: 0.68, top: 0.56, width: 0.1, height: 0.26 },
+      { left: 0.18, top: 0.54, width: 0.11, height: 0.28 },
+      { left: 0.7, top: 0.54, width: 0.11, height: 0.28 },
     ],
     ambient: {
-      waterSurfaces: [{ left: 0.2, top: 0.78, width: 0.6, height: 0.08 }],
+      waterSurfaces: [{ left: 0.18, top: 0.78, width: 0.64, height: 0.09 }],
       foliage: [
-        { hotspot: { left: 0.08, top: 0.48, width: 0.12, height: 0.1 }, delay: 0 },
-        { hotspot: { left: 0.74, top: 0.5, width: 0.12, height: 0.1 }, delay: 0.7 },
+        { hotspot: { left: 0.06, top: 0.46, width: 0.14, height: 0.12 }, delay: 0 },
+        { hotspot: { left: 0.78, top: 0.48, width: 0.14, height: 0.12 }, delay: 0.7 },
       ],
-      petals: { origin: { left: 0.1, top: 0.28, width: 0.8, height: 0.28 }, count: 7 },
+      petals: { origin: { left: 0.04, top: 0.18, width: 0.92, height: 0.42 }, count: 11 },
     },
   },
   english: {

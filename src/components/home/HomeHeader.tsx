@@ -16,6 +16,7 @@ type Props = {
   xpProgress?: number;
   coins: number;
   gems: number;
+  avatarSrc?: string;
   onNotify?: () => void;
   onMail?: () => void;
 };
@@ -27,6 +28,7 @@ export function HomeHeader({
   xpProgress = 0,
   coins,
   gems,
+  avatarSrc = "/worlds/chinese/momo.png?v=live",
   onNotify,
   onMail,
 }: Props) {
@@ -43,7 +45,7 @@ export function HomeHeader({
             <div className="profile-avatar relative h-11 w-11 overflow-hidden rounded-full">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/worlds/chinese/momo.png?v=live"
+                src={avatarSrc}
                 alt=""
                 className="h-full w-full object-cover object-[50%_20%]"
                 draggable={false}

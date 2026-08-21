@@ -722,7 +722,7 @@ main {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-4px);
+    transform: translateY(-7px);
   }
 }
 
@@ -1208,14 +1208,15 @@ main {
   position: absolute;
   left: var(--petal-x, 20%);
   top: 0;
-  width: 5px;
-  height: 7px;
+  width: 6px;
+  height: 8px;
   border-radius: 60% 40% 60% 40%;
   background: linear-gradient(135deg, #ffc8e8 0%, #ffb0d8 55%, #ff9ac8 100%);
   opacity: 0;
-  animation: island-petal-fall 6.5s ease-in-out infinite;
+  animation: island-petal-fall 5.8s ease-in-out infinite;
   animation-delay: var(--petal-delay, 0s);
   will-change: transform, opacity;
+  box-shadow: 0 0 3px rgba(255, 170, 210, 0.35);
 }
 
 @keyframes island-petal-fall {

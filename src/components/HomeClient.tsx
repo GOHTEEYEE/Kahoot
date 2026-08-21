@@ -150,6 +150,7 @@ export function HomeClient() {
           xpProgress={economy.xpProgress}
           coins={economy.coins}
           gems={economy.gems}
+          avatarSrc={account.avatar || "/worlds/chinese/momo.png?v=live"}
           onNotify={() => flash("暂无新通知")}
           onMail={() => flash("暂无新邮件")}
         />

@@ -18,13 +18,6 @@ import { playSfx } from "../../lib/audio/sfx";
 import { getWorldArtPack } from "../../lib/animation/worldArt";
 import { GameWorldHeader } from "../game-ui/GameWorldHeader";
 
-const ISLAND_SPARKLES = [
-  { left: "18%", top: "12%", delay: 0 },
-  { left: "78%", top: "18%", delay: 0.8 },
-  { left: "62%", top: "8%", delay: 1.6 },
-  { left: "32%", top: "22%", delay: 2.2 },
-] as const;
-
 type Props = {
   subject: SubjectId;
   trophies: number;
@@ -66,18 +59,7 @@ export function WorldDiorama({ subject, trophies, viewingStage, onIslandClick, c
 
       <div className="island-arena relative mx-auto flex w-full items-end justify-center">
         {children}
-        <div className={`island-stage relative island-shadow ${reduced ? "" : "island-idle-float"}`}>
-          {!reduced
-            ? ISLAND_SPARKLES.map((s, i) => (
-                <span
-                  key={i}
-                  className="island-sparkle pointer-events-none absolute z-20 h-1.5 w-1.5 rounded-full bg-white/80 shadow-[0_0_6px_rgba(255,255,255,0.7)]"
-                  style={{ left: s.left, top: s.top, animationDelay: `${s.delay}s` }}
-                  aria-hidden
-                />
-              ))
-            : null}
-
+        <div className="island-stage relative island-shadow">
           <div
             className={`relative h-full w-full ${
               artPack.islandHeroScale == null ? "origin-[50%_58%] scale-[var(--island-scale)]" : ""
