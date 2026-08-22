@@ -5,7 +5,7 @@ export default function AchievementsPage() {
     <main className="relative flex min-h-full flex-1 flex-col">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/worlds/shared/home-bg.png"
+        src="/worlds/shared/home-bg.png?v=2"
         alt=""
         aria-hidden
         draggable={false}

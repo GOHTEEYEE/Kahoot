@@ -107,7 +107,14 @@ export function HomeClient() {
   if (checking || !account) {
     return (
       <div className="relative flex flex-1 flex-col items-center justify-center gap-4 overflow-hidden px-10 text-center">
-        <div className="home-sky pointer-events-none absolute inset-0 -z-10" aria-hidden />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/worlds/shared/home-bg.png?v=2"
+          alt=""
+          aria-hidden
+          draggable={false}
+          className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover object-[50%_42%]"
+        />
         <motion.div
           animate={{ y: [0, -4, 0] }}
           transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
