@@ -29,6 +29,8 @@ import {
   type Grade,
   type SubjectId,
 } from "../lib/curriculum";
+import { playSfx } from "../lib/audio/sfx";
+import { useAudioScene } from "../lib/audio/useAudioScene";
 import { localizedGrade, localizedSubject } from "../lib/i18n/home";
 import { getSharedLabels } from "../lib/i18n/labels";
 import { getPlayCopy } from "../lib/i18n/play";
@@ -60,6 +62,7 @@ export function BattleClient() {
   const { locale } = useLocale();
   const play = getPlayCopy(locale);
   const labels = getSharedLabels(locale);
+  useAudioScene("battle");
   const [account, setAccount] = useState<StudentAccount | null>(null);
   const [grade, setGrade] = useState<Grade>(1);
   const [subject, setSubject] = useState<SubjectId>("math");
@@ -183,6 +186,7 @@ export function BattleClient() {
         const question = prev.questions[prev.index];
         const correct = choice !== null && choice === question.correctIndex;
         const points = scoreForAnswer(correct, remainingMs);
+        playSfx(correct ? "correct" : "wrong");
         setLastGain(points > 0 ? points : 0);
 
         const pending = pendingFriendRef.current;

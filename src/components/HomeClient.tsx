@@ -25,6 +25,7 @@ import { getMockEconomy, getSubjectWorld } from "../lib/worlds";
 import { readWallet } from "../lib/rewards";
 import { getHomeCopy } from "../lib/i18n/home";
 import { useLocale } from "../lib/i18n/useLocale";
+import { useAudioScene } from "../lib/audio/useAudioScene";
 import { usePrefersReducedMotion } from "../lib/usePrefersReducedMotion";
 
 export function HomeClient() {
@@ -32,6 +33,7 @@ export function HomeClient() {
   const reduced = usePrefersReducedMotion();
   const { locale } = useLocale();
   const copy = getHomeCopy(locale);
+  useAudioScene("home");
   const [account, setAccount] = useState<StudentAccount | null>(null);
   const [subject, setSubject] = useState<SubjectId>("math");
   const [checking, setChecking] = useState(true);

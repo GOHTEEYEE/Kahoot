@@ -30,7 +30,7 @@ export type ChallengeModeMeta = {
 export const CHALLENGE_MODES: ChallengeModeMeta[] = [
   {
     id: "arena",
-    href: "/battle",
+    href: "/pvp",
     icon: "swords",
     rewardIcon: "trophy",
     tone: "gold",

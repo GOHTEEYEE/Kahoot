@@ -19,6 +19,7 @@ import { getCurrentAccount, getSelectedSubject, getSubjectStats } from "../../li
 import type { StudentAccount } from "../../lib/account";
 import type { SubjectId } from "../../lib/curriculum";
 import { playSfx } from "../../lib/audio/sfx";
+import { useAudioScene } from "../../lib/audio/useAudioScene";
 import { getChallengeCopy } from "../../lib/i18n/challenge";
 import { localizedSubject, localizedWorldName } from "../../lib/i18n/home";
 import { getPlayCopy } from "../../lib/i18n/play";
@@ -46,6 +47,7 @@ export function AdventureMap() {
   const [correct, setCorrect] = useState(0);
   const [result, setResult] = useState<Result | null>(null);
   const paid = useRef(false);
+  useAudioScene(phase === "play" || phase === "result" ? "battle" : "home");
 
   const boot = useCallback(() => {
     const current = getCurrentAccount();
@@ -113,7 +115,7 @@ export function AdventureMap() {
     setSelected(choice);
     setReveal(true);
     setCorrect(hits);
-    playSfx(ok ? "hud" : "tap");
+    playSfx(ok ? "correct" : "wrong");
     window.setTimeout(() => {
       const next = index + 1;
       if (next >= deck.length) {
@@ -138,6 +140,7 @@ export function AdventureMap() {
       <ChallengeShell title={challenge.modes.adventure.title} subtitle={loc.nameEn} backHref="/challenge">
         <ChallengeResult
           title={result.correct >= 3 ? "LOCATION CLEARED" : "KEEP EXPLORING"}
+          fanfare={result.correct >= 3 ? "win" : "lose"}
           extra={locale === "zh" ? loc.name : loc.nameEn}
           result={result}
           onAgain={() => enter(loc)}

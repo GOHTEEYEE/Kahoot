@@ -35,6 +35,7 @@ export type HomeCopy = {
   sfxOn: string;
   sfxOff: string;
   settings: string;
+  battleLog: string;
   noMail: string;
   noNotify: string;
   nav: {
@@ -97,6 +98,7 @@ export const HOME_I18N: Record<AppLocale, HomeCopy> = {
     sfxOn: "打开音效",
     sfxOff: "关闭音效",
     settings: "设置",
+    battleLog: "对战记录",
     noMail: "暂无新邮件",
     noNotify: "暂无新通知",
     nav: {
@@ -157,6 +159,7 @@ export const HOME_I18N: Record<AppLocale, HomeCopy> = {
     sfxOn: "Unmute SFX",
     sfxOff: "Mute SFX",
     settings: "Settings",
+    battleLog: "Battle Log",
     noMail: "No new mail",
     noNotify: "No new notifications",
     nav: {
@@ -217,6 +220,7 @@ export const HOME_I18N: Record<AppLocale, HomeCopy> = {
     sfxOn: "Hidupkan bunyi",
     sfxOff: "Senyapkan bunyi",
     settings: "Tetapan",
+    battleLog: "Rekod Lawan",
     noMail: "Tiada mel baharu",
     noNotify: "Tiada pemberitahuan",
     nav: {

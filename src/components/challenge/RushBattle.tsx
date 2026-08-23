@@ -16,6 +16,7 @@ import type { StudentAccount } from "../../lib/account";
 import type { SubjectId } from "../../lib/curriculum";
 import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion";
 import { playSfx } from "../../lib/audio/sfx";
+import { useAudioScene } from "../../lib/audio/useAudioScene";
 import { getChallengeCopy } from "../../lib/i18n/challenge";
 import { getSharedLabels } from "../../lib/i18n/labels";
 import { useLocale } from "../../lib/i18n/useLocale";
@@ -28,6 +29,7 @@ export function RushBattle() {
   const challenge = getChallengeCopy(locale);
   const labels = getSharedLabels(locale);
   const reduced = usePrefersReducedMotion();
+  useAudioScene("battle");
   const [account, setAccount] = useState<StudentAccount | null>(null);
   const [subject, setSubject] = useState<SubjectId>("math");
   const [phase, setPhase] = useState<Phase>("play");
@@ -164,7 +166,7 @@ export function RushBattle() {
     setCorrect(nextCorrect);
     setAnswered(nextAnswered);
     setPop(isCorrect ? `CORRECT!  STREAK ×${nextStreak}  +${gain}` : "MISS");
-    playSfx(isCorrect ? "challenge" : "tap");
+    playSfx(isCorrect ? "correct" : "wrong");
     window.setTimeout(() => nextQuestion(nextScore, nextCorrect, nextAnswered, nextBest), 620);
   }
 
@@ -178,6 +180,7 @@ export function RushBattle() {
         <ChallengeResult
           title="KNOWLEDGE RUSH COMPLETE"
           extra={`Best Streak ${bestStreak} · Answered ${result.total}`}
+          fanfare={result.correct >= Math.max(1, Math.floor(result.total * 0.4)) ? "win" : "lose"}
           result={result}
           onAgain={boot}
           onHome={() => router.push("/challenge")}

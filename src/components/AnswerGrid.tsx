@@ -1,6 +1,7 @@
 "use client";
 
 import { getPlayCopy } from "../lib/i18n/play";
+import { playSfx } from "../lib/audio/sfx";
 import { useLocale } from "../lib/i18n/useLocale";
 
 const SHAPE_ICONS = [
@@ -81,7 +82,10 @@ export function AnswerGrid({
             key={`${dealKey}-${option}-${index}`}
             type="button"
             disabled={disabled}
-            onClick={() => onSelect(index)}
+            onClick={() => {
+              playSfx("answer");
+              onSelect(index);
+            }}
             style={{ animationDelay: `${index * 0.07}s` }}
             className={`${meta.bg} ${ring} ${feedback} pressable animate-card-deal flex min-h-[4.5rem] items-center gap-3 rounded-2xl px-4 py-4 text-left text-xl font-extrabold text-white shadow-[var(--shadow)] disabled:cursor-not-allowed`}
             aria-label={`${shapes[index]}: ${option}`}

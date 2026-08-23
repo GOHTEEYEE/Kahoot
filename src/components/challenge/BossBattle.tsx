@@ -23,6 +23,7 @@ import type { StudentAccount } from "../../lib/account";
 import type { Grade, SubjectId } from "../../lib/curriculum";
 import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion";
 import { playSfx } from "../../lib/audio/sfx";
+import { useAudioScene } from "../../lib/audio/useAudioScene";
 import { getChallengeCopy } from "../../lib/i18n/challenge";
 import { localizedGrade } from "../../lib/i18n/home";
 import { getPlayCopy } from "../../lib/i18n/play";
@@ -38,6 +39,7 @@ export function BossBattle() {
   const challenge = getChallengeCopy(locale);
   const labels = getSharedLabels(locale);
   const reduced = usePrefersReducedMotion();
+  useAudioScene("battle");
   const [account, setAccount] = useState<StudentAccount | null>(null);
   const [subject, setSubject] = useState<SubjectId>("math");
   const [grade, setGrade] = useState<Grade>(1);
@@ -167,13 +169,14 @@ export function BossBattle() {
       setFlash("CRITICAL HIT!");
       setShake(true);
       window.setTimeout(() => setShake(false), 420);
-      playSfx("challenge");
+      playSfx("correct");
+      playSfx("hit");
     } else if (isCorrect) {
       setFlash("ATTACK!");
-      playSfx("hud");
+      playSfx("correct");
     } else {
       setFlash("MISS!");
-      playSfx("tap");
+      playSfx("wrong");
     }
     window.setTimeout(() => advance(nextHp, nextHearts, nextCorrect), 800);
   }
@@ -188,6 +191,7 @@ export function BossBattle() {
       <ChallengeShell title={challenge.modes.boss.title} subtitle={locale === "zh" ? boss.name : boss.nameEn} backHref="/challenge">
         <ChallengeResult
           title={win ? "BOSS DEFEATED" : "RETRY THE BOSS"}
+          fanfare={win ? "win" : "lose"}
           extra={win ? play.bossDown(locale === "zh" ? boss.name : boss.nameEn) : play.bossRetry}
           result={result}
           onAgain={boot}

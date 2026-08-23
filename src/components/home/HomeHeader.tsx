@@ -1,12 +1,14 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { Grade } from "../../lib/curriculum";
-import { isSfxMuted, playSfx, setSfxMuted } from "../../lib/audio/sfx";
-import { useSfxMuted } from "../../lib/audio/useSfxMuted";
+import { playSfx } from "../../lib/audio/sfx";
 import { getHomeCopy, localizedGrade } from "../../lib/i18n/home";
 import { useLocale } from "../../lib/i18n/useLocale";
+import { BATTLE_LOG_EVENT, getBattleLogUnseenCount } from "../../lib/pvp/battleLog";
 import { GameIcon } from "./GameIcon";
 import { GameResource } from "../game-ui/GameResource";
 import { GameHUDButton } from "../game-ui/GameHUDButton";
@@ -34,12 +36,24 @@ export function HomeHeader({
   onNotify,
   onMail,
 }: Props) {
-  const muted = useSfxMuted();
+  const router = useRouter();
   const { locale } = useLocale();
   const copy = getHomeCopy(locale);
+  const [unseenBattles, setUnseenBattles] = useState(0);
   const xpNow = xpLevel * 250 + xpProgress * 8;
   const xpMax = (xpLevel + 1) * 250;
   const xpPct = Math.min(100, Math.round((xpNow / xpMax) * 100));
+
+  useEffect(() => {
+    const refresh = () => setUnseenBattles(getBattleLogUnseenCount());
+    refresh();
+    window.addEventListener(BATTLE_LOG_EVENT, refresh);
+    window.addEventListener("focus", refresh);
+    return () => {
+      window.removeEventListener(BATTLE_LOG_EVENT, refresh);
+      window.removeEventListener("focus", refresh);
+    };
+  }, []);
 
   return (
     <header className="relative z-30 shrink-0 py-0.5">
@@ -109,25 +123,14 @@ export function HomeHeader({
               <GameIcon name="notification" size="utility" />
             </GameHUDButton>
             <GameHUDButton
-              ariaLabel={muted ? copy.sfxOn : copy.sfxOff}
+              ariaLabel={copy.battleLog}
+              badge={unseenBattles > 0 ? (unseenBattles > 9 ? "9+" : String(unseenBattles)) : undefined}
               onClick={() => {
-                if (isSfxMuted()) {
-                  setSfxMuted(false);
-                  playSfx("hud");
-                } else {
-                  playSfx("mute");
-                  setSfxMuted(true);
-                }
+                playSfx("tap");
+                router.push("/battle-log");
               }}
             >
-              <span className="relative">
-                <GameIcon name="event" size="utility" />
-                {muted ? (
-                  <span className="absolute inset-0 flex items-center justify-center text-[9px] font-black text-[#f04444]">
-                    /
-                  </span>
-                ) : null}
-              </span>
+              <GameIcon name="swords" size="utility" />
             </GameHUDButton>
             <Link
               href="/settings"

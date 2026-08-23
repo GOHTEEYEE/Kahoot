@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { playSfx } from "../lib/audio/sfx";
 import { getPlayCopy } from "../lib/i18n/play";
 import { useLocale } from "../lib/i18n/useLocale";
 
@@ -19,6 +20,7 @@ export function CountdownOverlay({ onDone }: Props) {
       onDone();
       return;
     }
+    playSfx(step === steps.length - 1 ? "go" : "countdown");
     const ms = step === steps.length - 1 ? 700 : 550;
     const timer = window.setTimeout(() => setStep((s) => s + 1), ms);
     return () => window.clearTimeout(timer);

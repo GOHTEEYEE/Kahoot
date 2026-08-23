@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { TrophyCount } from "./TrophyCount";
 import { GameIcon } from "./home/GameIcon";
 import type { MatchResult } from "../lib/trophy";
@@ -9,6 +9,7 @@ import { getRank } from "../lib/trophy";
 import { localizedRankName } from "../lib/i18n/labels";
 import { getPlayCopy } from "../lib/i18n/play";
 import { useLocale } from "../lib/i18n/useLocale";
+import { playSfx } from "../lib/audio/sfx";
 
 type Props = {
   result: MatchResult;
@@ -46,6 +47,10 @@ export function ResultScreen({
   const play = getPlayCopy(locale);
   const copy = COPY[result];
   const deltaText = delta > 0 ? `+${delta}` : `${delta}`;
+
+  useEffect(() => {
+    playSfx(result === "win" ? "win" : result === "lose" ? "lose" : "wrong");
+  }, [result]);
   const pieces = useMemo(
     () =>
       Array.from({ length: result === "win" ? 18 : 0 }, (_, i) => ({

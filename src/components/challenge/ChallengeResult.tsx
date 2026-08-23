@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import type { ChallengeResult } from "../../lib/challenge";
 import { playSfx } from "../../lib/audio/sfx";
@@ -11,13 +12,19 @@ type Props = {
   title: string;
   result: ChallengeResult;
   extra?: string;
+  fanfare?: "win" | "lose";
   onAgain: () => void;
   onHome: () => void;
 };
 
-export function ChallengeResult({ title, result, extra, onAgain, onHome }: Props) {
+export function ChallengeResult({ title, result, extra, fanfare, onAgain, onHome }: Props) {
   const { locale } = useLocale();
   const play = getPlayCopy(locale);
+
+  useEffect(() => {
+    if (!fanfare) return;
+    playSfx(fanfare);
+  }, [fanfare]);
   return (
     <motion.section
       initial={{ opacity: 0, y: 10 }}
