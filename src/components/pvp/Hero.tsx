@@ -29,8 +29,28 @@ function usePrefersHevcAlpha() {
   return hevc;
 }
 
+function playFromStart(el: HTMLVideoElement) {
+  const kick = () => {
+    void el.play().catch(() => undefined);
+  };
+  try {
+    if (el.currentTime > 0.02) el.currentTime = 0;
+  } catch {
+    /* ignore seek errors on some browsers */
+  }
+  if (el.seeking) {
+    el.addEventListener("seeked", kick, { once: true });
+    return;
+  }
+  if (el.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+    kick();
+    return;
+  }
+  el.addEventListener("canplay", kick, { once: true });
+}
+
 const SPRITE_CLASS =
-  "relative z-[2] h-full max-h-full w-auto max-w-full bg-transparent object-contain object-bottom";
+  "z-[2] h-full max-h-full w-auto max-w-full bg-transparent object-contain object-bottom";
 
 export function Hero({ fighter, side, attacking, preparing, hit, celebrating, crying, onSwing, onImpact }: Props) {
   const nervous = fighter.hp / fighter.maxHp <= PVP_LOW_HP;
@@ -52,8 +72,7 @@ export function Hero({ fighter, side, attacking, preparing, hit, celebrating, cr
   const playClip = Boolean(hasClip && attacking && !reduced && !playWin && !playLose);
   const freezeMotion = playClip || playWin || playLose;
   const showReaction = playWin || playLose;
-  const [liveClip, setLiveClip] = useState<"attack" | "win" | "lose" | null>(null);
-  const showIdle = liveClip === null;
+  const showIdle = !playClip && !playWin && !playLose;
   const face = side === "opponent" ? " -scale-x-100" : "";
   const aura =
     combo >= 5
@@ -70,15 +89,12 @@ export function Hero({ fighter, side, attacking, preparing, hit, celebrating, cr
     el.playbackRate = PLAYER_HERO.attackRate;
     if (!playClip) {
       el.pause();
-      el.currentTime = 0;
-      setLiveClip((cur) => (cur === "attack" ? null : cur));
+      try {
+        el.currentTime = 0;
+      } catch {
+        /* ignore */
+      }
       return;
-    }
-    el.pause();
-    try {
-      el.currentTime = 0;
-    } catch {
-      /* ignore seek errors on some browsers */
     }
     let armed = false;
     let swung = false;
@@ -105,7 +121,7 @@ export function Hero({ fighter, side, attacking, preparing, hit, celebrating, cr
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
-    void el.play().catch(() => setLiveClip((cur) => (cur === "attack" ? null : cur)));
+    playFromStart(el);
     return () => {
       el.removeEventListener("timeupdate", cue);
       cancelAnimationFrame(raf);
@@ -118,16 +134,14 @@ export function Hero({ fighter, side, attacking, preparing, hit, celebrating, cr
     el.playbackRate = PLAYER_HERO.winRate;
     if (!playWin) {
       el.pause();
-      el.currentTime = 0;
-      setLiveClip((cur) => (cur === "win" ? null : cur));
+      try {
+        el.currentTime = 0;
+      } catch {
+        /* ignore */
+      }
       return;
     }
-    try {
-      el.currentTime = 0;
-    } catch {
-      /* ignore seek errors on some browsers */
-    }
-    void el.play().catch(() => setLiveClip((cur) => (cur === "win" ? null : cur)));
+    playFromStart(el);
   }, [playWin, hasWinClip]);
 
   useLayoutEffect(() => {
@@ -136,16 +150,14 @@ export function Hero({ fighter, side, attacking, preparing, hit, celebrating, cr
     el.playbackRate = PLAYER_HERO.loseRate;
     if (!playLose) {
       el.pause();
-      el.currentTime = 0;
-      setLiveClip((cur) => (cur === "lose" ? null : cur));
+      try {
+        el.currentTime = 0;
+      } catch {
+        /* ignore */
+      }
       return;
     }
-    try {
-      el.currentTime = 0;
-    } catch {
-      /* ignore seek errors on some browsers */
-    }
-    void el.play().catch(() => setLiveClip((cur) => (cur === "lose" ? null : cur)));
+    playFromStart(el);
   }, [playLose, hasLoseClip]);
 
   const clipSrc = hevc ? PLAYER_HERO.attackMov : PLAYER_HERO.attackWebm;
@@ -154,6 +166,8 @@ export function Hero({ fighter, side, attacking, preparing, hit, celebrating, cr
   const winType = hevc ? 'video/mp4; codecs="hvc1"' : "video/webm";
   const loseSrc = hevc ? PLAYER_HERO.loseMov : PLAYER_HERO.loseWebm;
   const loseType = hevc ? 'video/mp4; codecs="hvc1"' : "video/webm";
+  const overlayOff = "pointer-events-none absolute bottom-0 left-0 right-0 mx-auto opacity-0";
+  const overlayOn = "absolute bottom-0 left-0 right-0 mx-auto opacity-100";
 
   return (
     <motion.div
@@ -193,61 +207,55 @@ export function Hero({ fighter, side, attacking, preparing, hit, celebrating, cr
         {fighter.comboProtected ? (
           <span className="pointer-events-none absolute inset-[10%_8%_4%] rounded-[42%] ring-2 ring-sky-200/80" />
         ) : null}
-        {showIdle ? (
-          fighter.avatar ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={fighter.avatar} alt="" draggable={false} className={`${SPRITE_CLASS}${face}`} />
-          ) : (
-            <span className="relative z-[2] text-[clamp(3.2rem,16svh,5.5rem)] leading-none">{fighter.heroEmoji}</span>
-          )
+        {fighter.avatar ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={fighter.avatar}
+            alt=""
+            draggable={false}
+            className={`relative ${SPRITE_CLASS}${face}${showIdle ? "" : " invisible"}`}
+          />
+        ) : showIdle ? (
+          <span className="relative z-[2] text-[clamp(3.2rem,16svh,5.5rem)] leading-none">{fighter.heroEmoji}</span>
         ) : null}
         {hasClip ? (
-          <>
-            <video
-              ref={clipRef}
-              key={clipSrc}
-              muted
-              playsInline
-              preload="auto"
-              disablePictureInPicture
-              poster={PLAYER_HERO.src}
-              onPlaying={() => setLiveClip("attack")}
-              onError={() => setLiveClip((cur) => (cur === "attack" ? null : cur))}
-              className={`${SPRITE_CLASS}${face}${playClip && !showReaction ? "" : " hidden"}`}
-            >
-              <source src={clipSrc} type={clipType} />
-            </video>
-            {hasWinClip ? (
-              <video
-                ref={winRef}
-                key={winSrc}
-                muted
-                playsInline
-                preload="auto"
-                disablePictureInPicture
-                onPlaying={() => setLiveClip("win")}
-                onError={() => setLiveClip((cur) => (cur === "win" ? null : cur))}
-                className={`${SPRITE_CLASS}${face}${playWin ? "" : " hidden"}`}
-              >
-                <source src={winSrc} type={winType} />
-              </video>
-            ) : null}
-            {hasLoseClip ? (
-              <video
-                ref={loseRef}
-                key={loseSrc}
-                muted
-                playsInline
-                preload="auto"
-                disablePictureInPicture
-                onPlaying={() => setLiveClip("lose")}
-                onError={() => setLiveClip((cur) => (cur === "lose" ? null : cur))}
-                className={`${SPRITE_CLASS}${face}${playLose ? "" : " hidden"}`}
-              >
-                <source src={loseSrc} type={loseType} />
-              </video>
-            ) : null}
-          </>
+          <video
+            ref={clipRef}
+            key={clipSrc}
+            muted
+            playsInline
+            preload="auto"
+            disablePictureInPicture
+            className={`${SPRITE_CLASS}${face} ${playClip && !showReaction ? overlayOn : overlayOff}`}
+          >
+            <source src={clipSrc} type={clipType} />
+          </video>
+        ) : null}
+        {hasWinClip ? (
+          <video
+            ref={winRef}
+            key={winSrc}
+            muted
+            playsInline
+            preload="auto"
+            disablePictureInPicture
+            className={`${SPRITE_CLASS}${face} ${playWin ? overlayOn : overlayOff}`}
+          >
+            <source src={winSrc} type={winType} />
+          </video>
+        ) : null}
+        {hasLoseClip ? (
+          <video
+            ref={loseRef}
+            key={loseSrc}
+            muted
+            playsInline
+            preload="auto"
+            disablePictureInPicture
+            className={`${SPRITE_CLASS}${face} ${playLose ? overlayOn : overlayOff}`}
+          >
+            <source src={loseSrc} type={loseType} />
+          </video>
         ) : null}
       </div>
     </motion.div>

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { playSfx } from "../../lib/audio/sfx";
+import { startResultTheme } from "../../lib/audio/resultTheme";
 import { useAudioScene } from "../../lib/audio/useAudioScene";
 import { getPvpCopy } from "../../lib/i18n/pvp";
 import { useLocale } from "../../lib/i18n/useLocale";
@@ -13,6 +14,7 @@ import {
   speedLeadSeconds,
   type PvpMatchResult,
 } from "../../lib/pvp/matchResult";
+import { GameIcon } from "../home/GameIcon";
 import { DefeatCharacter, VictoryCharacter } from "./ResultPanda";
 
 export function PvpResultClient() {
@@ -33,6 +35,7 @@ export function PvpResultClient() {
     setResult(stored);
     setReady(true);
     playSfx(stored.result === "win" ? "win" : stored.result === "lose" ? "lose" : "wrong");
+    return startResultTheme(stored.result === "win" ? "win" : stored.result === "lose" ? "lose" : "draw");
   }, [router]);
 
   const lead = result ? speedLeadSeconds(result) : 0;
@@ -107,40 +110,45 @@ export function PvpResultClient() {
       ) : null}
 
       <div className="pvp-result-stage">
-        <div className="pvp-result-panda">
-          {win ? <VictoryCharacter /> : <DefeatCharacter />}
+        <div className="pvp-result-banner">
+          <span className="pvp-result-crown" aria-hidden>
+            {win ? "👑" : result.result === "draw" ? "🤝" : "💔"}
+          </span>
+          <h1 className="pvp-result-title">{title}</h1>
+          <p className="pvp-result-ribbon">{subtitle}</p>
         </div>
-        <div className="pvp-result-title-wrap">
-          <p className="pvp-result-title">{title}</p>
-          <p className="pvp-result-sub">{subtitle}</p>
-        </div>
+
+        <div className="pvp-result-panda">{win ? <VictoryCharacter /> : <DefeatCharacter />}</div>
       </div>
 
       <div className="pvp-result-bottom">
         <div className="pvp-result-stats">
           <div>
             <span>{copy.statAccuracy}</span>
-            <strong>{result.player.accuracy}%</strong>
+            <strong>🎯 {result.player.accuracy}%</strong>
           </div>
           <div>
             <span>{copy.statSpeed}</span>
-            <strong>{speedLabel}</strong>
+            <strong>⚡ {speedLabel}</strong>
           </div>
           <div>
             <span>{copy.statShield}</span>
-            <strong>+{result.rewards.knowledgeShield}</strong>
+            <strong>🛡 +{result.rewards.knowledgeShield}</strong>
           </div>
         </div>
 
         <div className="pvp-result-actions">
           <button type="button" className="pvp-result-btn pvp-result-btn-home" onClick={goHome}>
-            {copy.home}
+            <GameIcon name="home" size="utility" />
+            <span>{copy.home}</span>
           </button>
           <button type="button" className="pvp-result-btn pvp-result-btn-rematch" onClick={rematch}>
-            {copy.rematch}
+            <GameIcon name="swords" size="utility" />
+            <span>{copy.rematch}</span>
           </button>
           <button type="button" className="pvp-result-btn pvp-result-btn-share" onClick={() => void share()}>
-            {copied ? copy.shareCopied : copy.share}
+            <GameIcon name="mail" size="utility" />
+            <span>{copied ? copy.shareCopied : copy.share}</span>
           </button>
         </div>
       </div>
