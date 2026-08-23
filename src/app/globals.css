@@ -424,13 +424,21 @@ main {
 
 .game-canvas {
   position: relative;
-  width: min(100%, 390px);
-  max-width: 390px;
+  width: 100%;
+  max-width: 100%;
   height: 100dvh;
   max-height: 100dvh;
   margin-inline: auto;
   display: flex;
   flex-direction: column;
+}
+
+/* Desktop: keep a phone-width HUD; sky still paints edge-to-edge on .home-page */
+@media (min-width: 768px) {
+  .game-canvas {
+    width: min(100%, 430px);
+    max-width: 430px;
+  }
 }
 
 .home-middle-zone {
@@ -756,10 +764,12 @@ main {
   opacity: 1 !important;
 }
 
-@media (min-width: 768px) {
-  .game-canvas {
-    margin-inline: auto;
-  }
+body:has(.home-page) {
+  background: #8fd3e8;
+}
+
+body:has(.home-page)::before {
+  display: none;
 }
 
 .animate-pulse-glow {

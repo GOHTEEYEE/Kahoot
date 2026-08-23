@@ -2,10 +2,10 @@
 
 const HOME_BG = "/worlds/shared/home-bg.png?v=2";
 
-/** Painted home sky — island sits on top; CSS clouds/hills stay off so the art shows. */
+/** Full-viewport home sky — must sit on `main`, not inside the HUD column. */
 export function HomeAtmosphere() {
   return (
-    <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden>
+    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={HOME_BG}

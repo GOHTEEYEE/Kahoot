@@ -415,7 +415,7 @@ export function PvpBattleClient() {
 
   return (
     <div
-      className={`pvp-battle-root relative mx-auto flex h-[100dvh] w-full max-w-[430px] flex-col overflow-hidden bg-[#182444]${
+      className={`pvp-battle-root relative mx-auto flex h-[100dvh] w-full flex-col overflow-hidden bg-[#7eb7e8] md:max-w-[430px]${
         phase === "leaving" ? " is-leaving" : ""
       }`}
     >

@@ -52,6 +52,8 @@ export function Hero({ fighter, side, attacking, preparing, hit, celebrating, cr
   const playClip = Boolean(hasClip && attacking && !reduced && !playWin && !playLose);
   const freezeMotion = playClip || playWin || playLose;
   const showReaction = playWin || playLose;
+  const [liveClip, setLiveClip] = useState<"attack" | "win" | "lose" | null>(null);
+  const showIdle = liveClip === null;
   const face = side === "opponent" ? " -scale-x-100" : "";
   const aura =
     combo >= 5
@@ -69,6 +71,7 @@ export function Hero({ fighter, side, attacking, preparing, hit, celebrating, cr
     if (!playClip) {
       el.pause();
       el.currentTime = 0;
+      setLiveClip((cur) => (cur === "attack" ? null : cur));
       return;
     }
     el.pause();
@@ -102,7 +105,7 @@ export function Hero({ fighter, side, attacking, preparing, hit, celebrating, cr
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
-    void el.play().catch(() => undefined);
+    void el.play().catch(() => setLiveClip((cur) => (cur === "attack" ? null : cur)));
     return () => {
       el.removeEventListener("timeupdate", cue);
       cancelAnimationFrame(raf);
@@ -116,6 +119,7 @@ export function Hero({ fighter, side, attacking, preparing, hit, celebrating, cr
     if (!playWin) {
       el.pause();
       el.currentTime = 0;
+      setLiveClip((cur) => (cur === "win" ? null : cur));
       return;
     }
     try {
@@ -123,7 +127,7 @@ export function Hero({ fighter, side, attacking, preparing, hit, celebrating, cr
     } catch {
       /* ignore seek errors on some browsers */
     }
-    void el.play().catch(() => undefined);
+    void el.play().catch(() => setLiveClip((cur) => (cur === "win" ? null : cur)));
   }, [playWin, hasWinClip]);
 
   useLayoutEffect(() => {
@@ -133,6 +137,7 @@ export function Hero({ fighter, side, attacking, preparing, hit, celebrating, cr
     if (!playLose) {
       el.pause();
       el.currentTime = 0;
+      setLiveClip((cur) => (cur === "lose" ? null : cur));
       return;
     }
     try {
@@ -140,7 +145,7 @@ export function Hero({ fighter, side, attacking, preparing, hit, celebrating, cr
     } catch {
       /* ignore seek errors on some browsers */
     }
-    void el.play().catch(() => undefined);
+    void el.play().catch(() => setLiveClip((cur) => (cur === "lose" ? null : cur)));
   }, [playLose, hasLoseClip]);
 
   const clipSrc = hevc ? PLAYER_HERO.attackMov : PLAYER_HERO.attackWebm;
@@ -188,6 +193,14 @@ export function Hero({ fighter, side, attacking, preparing, hit, celebrating, cr
         {fighter.comboProtected ? (
           <span className="pointer-events-none absolute inset-[10%_8%_4%] rounded-[42%] ring-2 ring-sky-200/80" />
         ) : null}
+        {showIdle ? (
+          fighter.avatar ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={fighter.avatar} alt="" draggable={false} className={`${SPRITE_CLASS}${face}`} />
+          ) : (
+            <span className="relative z-[2] text-[clamp(3.2rem,16svh,5.5rem)] leading-none">{fighter.heroEmoji}</span>
+          )
+        ) : null}
         {hasClip ? (
           <>
             <video
@@ -197,7 +210,10 @@ export function Hero({ fighter, side, attacking, preparing, hit, celebrating, cr
               playsInline
               preload="auto"
               disablePictureInPicture
-              className={`${SPRITE_CLASS}${face}${showReaction ? " hidden" : ""}`}
+              poster={PLAYER_HERO.src}
+              onPlaying={() => setLiveClip("attack")}
+              onError={() => setLiveClip((cur) => (cur === "attack" ? null : cur))}
+              className={`${SPRITE_CLASS}${face}${playClip && !showReaction ? "" : " hidden"}`}
             >
               <source src={clipSrc} type={clipType} />
             </video>
@@ -209,6 +225,8 @@ export function Hero({ fighter, side, attacking, preparing, hit, celebrating, cr
                 playsInline
                 preload="auto"
                 disablePictureInPicture
+                onPlaying={() => setLiveClip("win")}
+                onError={() => setLiveClip((cur) => (cur === "win" ? null : cur))}
                 className={`${SPRITE_CLASS}${face}${playWin ? "" : " hidden"}`}
               >
                 <source src={winSrc} type={winType} />
@@ -222,18 +240,15 @@ export function Hero({ fighter, side, attacking, preparing, hit, celebrating, cr
                 playsInline
                 preload="auto"
                 disablePictureInPicture
+                onPlaying={() => setLiveClip("lose")}
+                onError={() => setLiveClip((cur) => (cur === "lose" ? null : cur))}
                 className={`${SPRITE_CLASS}${face}${playLose ? "" : " hidden"}`}
               >
                 <source src={loseSrc} type={loseType} />
               </video>
             ) : null}
           </>
-        ) : fighter.avatar ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={fighter.avatar} alt="" draggable={false} className={`${SPRITE_CLASS}${face}`} />
-        ) : (
-          <span className="relative z-[2] text-[clamp(3.2rem,16svh,5.5rem)] leading-none">{fighter.heroEmoji}</span>
-        )}
+        ) : null}
       </div>
     </motion.div>
   );

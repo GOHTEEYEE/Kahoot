@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { HomeAtmosphere } from "./home/HomeAtmosphere";
 import { HomeHeader } from "./home/HomeHeader";
 import { WorldDiorama } from "./home/WorldDiorama";
 import { ChallengeButton } from "./home/ChallengeButton";
@@ -108,15 +107,7 @@ export function HomeClient() {
 
   if (checking || !account) {
     return (
-      <div className="relative flex flex-1 flex-col items-center justify-center gap-4 overflow-hidden px-10 text-center">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/worlds/shared/home-bg.png?v=2"
-          alt=""
-          aria-hidden
-          draggable={false}
-          className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover object-[50%_42%]"
-        />
+      <div className="relative z-10 flex flex-1 flex-col items-center justify-center gap-4 overflow-hidden px-10 text-center">
         <motion.div
           animate={{ y: [0, -4, 0] }}
           transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
@@ -145,7 +136,7 @@ export function HomeClient() {
 
   return (
     <motion.div
-      className="game-canvas relative mx-auto flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden px-[var(--home-pad-x)] pt-[max(0.25rem,env(safe-area-inset-top))] pb-[calc(var(--home-nav-h)+var(--home-cta-nav-gap)+0.4rem+env(safe-area-inset-bottom))]"
+      className="game-canvas relative z-10 mx-auto flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden px-[var(--home-pad-x)] pt-[max(0.25rem,env(safe-area-inset-top))] pb-[calc(var(--home-nav-h)+var(--home-cta-nav-gap)+0.4rem+env(safe-area-inset-bottom))]"
       initial={reduced ? false : "hidden"}
       animate="show"
       variants={{
@@ -153,8 +144,6 @@ export function HomeClient() {
         show: { transition: { staggerChildren: 0.06, delayChildren: 0.02 } },
       }}
     >
-      <HomeAtmosphere />
-
       <motion.div variants={enter} className="relative z-30 shrink-0">
         <HomeHeader
           name={account.displayName}
