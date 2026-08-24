@@ -1605,6 +1605,11 @@ body:has(.home-page)::before {
   filter: drop-shadow(0 18px 28px rgba(30, 50, 35, 0.28));
 }
 
+/* Parent CSS filters/transforms freeze HTML <video> to a still frame (Chrome compositor). */
+.island-shadow:has(video) {
+  filter: none;
+}
+
 
 .home-cloud {
   position: absolute;

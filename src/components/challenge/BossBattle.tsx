@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { AnswerGrid } from "../AnswerGrid";
 import { TimerBar } from "../TimerBar";
 import { BossHealthBar } from "./BossHealthBar";
+import { BossHero } from "./BossHero";
 import { ChallengeResult } from "./ChallengeResult";
 import { ChallengeShell } from "./ChallengeShell";
 import type { ChallengeResult as Result } from "../../lib/challenge";
@@ -213,7 +214,10 @@ export function BossBattle() {
         <h2 className="text-center font-[family-name:var(--font-display)] text-[22px] font-bold text-[#fff6e4]">
           {boss ? (locale === "zh" ? boss.name : boss.nameEn) : ""}
         </h2>
-        <div className="mt-2">
+        <div className="mt-1">
+          <BossHero hit={Boolean(flash) && flash !== "MISS!"} />
+        </div>
+        <div className="mt-1">
           <BossHealthBar current={hp} max={boss.maxHp} />
         </div>
         <p className="mt-2 text-center text-[16px] tracking-wide" aria-label={`${hearts} hearts`}>

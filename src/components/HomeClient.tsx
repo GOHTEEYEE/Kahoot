@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { LoadingSplash } from "./LoadingSplash";
 import { HomeHeader } from "./home/HomeHeader";
 import { WorldDiorama } from "./home/WorldDiorama";
 import { ChallengeButton } from "./home/ChallengeButton";
@@ -39,6 +40,8 @@ export function HomeClient() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [viewingStage, setViewingStage] = useState<WorldStageId | null>(null);
   const [toast, setToast] = useState("");
+  const [splashDone, setSplashDone] = useState(false);
+  const [progress, setProgress] = useState(8);
 
   useEffect(() => {
     let mounted = true;
@@ -73,6 +76,34 @@ export function HomeClient() {
     };
   }, [router]);
 
+  useEffect(() => {
+    const minMs = reduced ? 400 : 2000;
+    const t0 = performance.now();
+    let raf = 0;
+
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - t0) / minMs);
+      const eased = 1 - (1 - t) ** 3;
+      const accountReady = !checking && Boolean(account);
+      const cap = accountReady ? 100 : 92;
+      setProgress(Math.round(8 + eased * (cap - 8)));
+
+      if (!checking && !account) {
+        setProgress(100);
+        return;
+      }
+      if (t >= 1 && accountReady) {
+        setProgress(100);
+        setSplashDone(true);
+        return;
+      }
+      raf = window.requestAnimationFrame(tick);
+    };
+
+    raf = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(raf);
+  }, [account, checking, reduced]);
+
   const trophies = account ? getSubjectStats(account, subject).trophies : 0;
   const mascotName = getSubjectWorld(subject).mascotName;
 
@@ -105,29 +136,8 @@ export function HomeClient() {
     window.setTimeout(() => setToast(""), 1600);
   }
 
-  if (checking || !account) {
-    return (
-      <div className="relative z-10 flex flex-1 flex-col items-center justify-center gap-4 overflow-hidden px-10 text-center">
-        <motion.div
-          animate={{ y: [0, -4, 0] }}
-          transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-b from-[#ffe9b0] to-[#f6be32] font-[family-name:var(--font-display)] text-2xl font-bold text-[#4a3414] shadow-[0_6px_16px_rgba(80,50,20,0.22)] ring-2 ring-white/70"
-        >
-          M
-        </motion.div>
-        <p className="font-[family-name:var(--font-display)] text-lg font-bold text-[#6b5340]">
-          {copy.loading}
-        </p>
-        <div className="h-1.5 w-32 overflow-hidden rounded-full bg-[#3c3425]/10 ring-1 ring-white/40">
-          <motion.div
-            className="h-full rounded-full bg-gradient-to-r from-[#58b94b] to-[#b8f070]"
-            animate={{ x: ["-100%", "100%"] }}
-            transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-            style={{ width: "40%" }}
-          />
-        </div>
-      </div>
-    );
+  if (checking || !account || !splashDone) {
+    return <LoadingSplash progress={progress} tip={copy.loadingTip} />;
   }
 
   const enter = reduced

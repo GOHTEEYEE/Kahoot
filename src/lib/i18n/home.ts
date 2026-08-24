@@ -3,6 +3,7 @@ import type { Grade, SubjectId } from "../curriculum";
 
 export type HomeCopy = {
   loading: string;
+  loadingTip: string;
   grade: (g: Grade) => string;
   subjects: Record<SubjectId, string>;
   worldNames: Record<SubjectId, string>;
@@ -54,6 +55,7 @@ export type HomeCopy = {
 export const HOME_I18N: Record<AppLocale, HomeCopy> = {
   zh: {
     loading: "正在进入 MathArena...",
+    loadingTip: "答得快、答得对，才能打败所有怪物！",
     grade: (g) => `${g}年级`,
     subjects: {
       chinese: "华文",
@@ -115,6 +117,7 @@ export const HOME_I18N: Record<AppLocale, HomeCopy> = {
   },
   en: {
     loading: "Entering MathArena...",
+    loadingTip: "Answer fast, answer right, and defeat all the monsters!",
     grade: (g) => `Year ${g}`,
     subjects: {
       chinese: "Chinese",
@@ -176,6 +179,7 @@ export const HOME_I18N: Record<AppLocale, HomeCopy> = {
   },
   ms: {
     loading: "Memasuki MathArena...",
+    loadingTip: "Jawab pantas, jawab betul, dan kalahkan semua raksasa!",
     grade: (g) => `Tahun ${g}`,
     subjects: {
       chinese: "Bahasa Cina",

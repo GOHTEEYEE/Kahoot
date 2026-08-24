@@ -15,13 +15,16 @@
     "remotion:render:arena:webm": "remotion render remotion/index.ts ChineseArenaLoop public/worlds/chinese/arena-loop.webm --codec=vp9"
   },
   "dependencies": {
+    "@react-three/drei": "^10.7.8",
+    "@react-three/fiber": "^9.7.0",
     "@rive-app/react-canvas": "^4.31.0",
     "@supabase/supabase-js": "^2.112.3",
     "framer-motion": "^13.1.0",
     "next": "16.3.0",
     "pixi.js": "^8.19.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "three": "^0.185.1"
   },
   "devDependencies": {
     "@remotion/cli": "^4.0.513",

@@ -14,6 +14,7 @@ import type { WorldStageId } from "../../lib/worlds";
 import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion";
 import { ANIM } from "../../lib/animation/animationConfig";
 import { WorldScene } from "../world/WorldScene";
+import { USE_VIDEO_CHINESE_ARENA } from "../world/VideoArena";
 import { playSfx } from "../../lib/audio/sfx";
 import { getWorldArtPack } from "../../lib/animation/worldArt";
 import { GameWorldHeader } from "../game-ui/GameWorldHeader";
@@ -41,6 +42,9 @@ export function WorldDiorama({ subject, trophies, viewingStage, onIslandClick, c
   const trophyCap = nextReward?.trophies ?? Math.max(trophies, 200);
   const span = Math.max(1, trophyCap - prev);
   const plaqueProgress = nextReward ? Math.min(1, (trophies - prev) / span) : 1;
+  /** Chrome freezes alpha <video> if any ancestor uses CSS transform/filter. Scale with width instead. */
+  const videoArena = subject === "chinese" && USE_VIDEO_CHINESE_ARENA;
+  const heroScale = artPack.islandHeroScale;
 
   function openMap() {
     playSfx("whoosh");
@@ -62,21 +66,41 @@ export function WorldDiorama({ subject, trophies, viewingStage, onIslandClick, c
 
       <div className="island-arena relative mx-auto flex w-full items-end justify-center">
         {children}
-        <div className="island-stage relative island-shadow">
+        <div
+          className="island-stage relative island-shadow"
+          style={
+            videoArena
+              ? {
+                  width: `calc(var(--island-size) * ${heroScale ?? 1.1})`,
+                  maxWidth: `calc(var(--island-size) * ${heroScale ?? 1.1})`,
+                }
+              : undefined
+          }
+        >
           <div
             className={`relative h-full w-full ${
-              artPack.islandHeroScale == null ? "origin-[50%_58%] scale-[var(--island-scale)]" : ""
+              videoArena || heroScale != null ? "" : "origin-[50%_58%] scale-[var(--island-scale)]"
             }`}
             style={
-              artPack.islandHeroScale == null
+              videoArena || heroScale == null
                 ? undefined
                 : {
                     transformOrigin: artPack.islandHeroOrigin ?? "50% 58%",
-                    transform: `scale(${artPack.islandHeroScale})`,
+                    transform: `scale(${heroScale})`,
                   }
             }
           >
             <AnimatePresence mode="wait">
+              {videoArena ? (
+                <div key={`${subject}-${stage.id}`} className="relative h-full w-full">
+                  <WorldScene
+                    subject={subject}
+                    world={world}
+                    stage={stage.id}
+                    onIslandClick={onIslandClick}
+                  />
+                </div>
+              ) : (
               <motion.div
                 key={`${subject}-${stage.id}`}
                 initial={false}
@@ -96,6 +120,7 @@ export function WorldDiorama({ subject, trophies, viewingStage, onIslandClick, c
                   onIslandClick={onIslandClick}
                 />
               </motion.div>
+              )}
             </AnimatePresence>
           </div>
         </div>

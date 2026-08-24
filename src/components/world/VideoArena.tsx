@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { playSfx } from "../../lib/audio/sfx";
 import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion";
 
-const ARENA_WEBM = "/worlds/chinese/arena-kling-loop.webm?v=9";
-const ARENA_MOV = "/worlds/chinese/arena-kling-loop.mov?v=9";
-const ARENA_POSTER = "/worlds/chinese/arena-kling-poster.png?v=9";
+const ARENA_WEBM = "/worlds/chinese/arena-kling-loop.webm?v=10";
+const ARENA_MOV = "/worlds/chinese/arena-kling-loop.mov?v=10";
+const ARENA_POSTER = "/worlds/chinese/arena-kling-poster.png?v=10";
 
 type Props = {
   onIslandClick?: () => void;
@@ -28,6 +28,18 @@ export function VideoArena({ onIslandClick }: Props) {
   const hevc = usePrefersHevcAlpha();
   const src = hevc ? ARENA_MOV : ARENA_WEBM;
   const type = hevc ? 'video/mp4; codecs="hvc1"' : "video/webm";
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el || reduced) return;
+    const kick = () => {
+      void el.play().catch(() => {});
+    };
+    kick();
+    el.addEventListener("canplay", kick);
+    return () => el.removeEventListener("canplay", kick);
+  }, [reduced, src]);
 
   return (
     <div className="absolute inset-0 flex items-center justify-center bg-transparent">
@@ -42,6 +54,7 @@ export function VideoArena({ onIslandClick }: Props) {
           />
         ) : (
           <video
+            ref={videoRef}
             key={src}
             autoPlay
             loop
